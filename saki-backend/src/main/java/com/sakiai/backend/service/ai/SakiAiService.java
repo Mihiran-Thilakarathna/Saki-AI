@@ -232,6 +232,12 @@ public class SakiAiService {
         int status = ex.getStatusCode().value();
         String upstreamMessage = extractGoogleErrorMessage(ex.getResponseBodyAsString());
         log.error("Gemini {} error {}: {}", model, status, upstreamMessage);
+        // Google answers an invalid or deleted key with 400 INVALID_ARGUMENT, not 401/403.
+        boolean badKey = upstreamMessage.toLowerCase(java.util.Locale.ROOT).contains("api key");
+        if (status == 400 && badKey) {
+            return new AiServiceException(HttpStatus.SERVICE_UNAVAILABLE, "AI_AUTH_FAILED",
+                    "Gemini rejected the API key. Check GEMINI_API_KEY on the backend.", ex);
+        }
         if (status == 400) {
             return new AiServiceException(HttpStatus.BAD_GATEWAY, "AI_REQUEST_REJECTED",
                     "Gemini rejected the request: " + upstreamMessage, ex);

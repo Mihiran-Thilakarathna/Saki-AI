@@ -76,6 +76,18 @@ class SakiAiServiceFallbackTest {
     }
 
     @Test
+    void invalidApiKeyIsReportedAsAuthFailureWithoutTryingOtherModels() throws IOException {
+        String invalid = "{\"error\":{\"code\":400,\"message\":\"API key not valid. Please pass a valid API key.\"}}";
+        start(Map.of("main", new Reply(400, invalid), "backup", new Reply(200, ANSWER)));
+
+        assertThatThrownBy(() -> service(List.of("backup")).ask(query()))
+                .isInstanceOf(AiServiceException.class)
+                .hasMessageContaining("GEMINI_API_KEY")
+                .extracting(e -> ((AiServiceException) e).getErrorCode()).isEqualTo("AI_AUTH_FAILED");
+        assertThat(calledModels).containsExactly("main");
+    }
+
+    @Test
     void allModelsBusyGivesFriendlyError() throws IOException {
         start(Map.of("main", new Reply(503, BUSY), "backup", new Reply(503, BUSY)));
 
