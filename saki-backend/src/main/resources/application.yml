@@ -1,0 +1,108 @@
+server:
+  # Render (and similar hosts) provide PORT; SERVER_PORT is the local override.
+  port: ${PORT:${SERVER_PORT:8080}}
+  shutdown: graceful
+  error:
+    include-message: always
+
+spring:
+  application:
+    name: saki-backend
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/saki_ai}
+    username: ${DB_USERNAME:saki}
+    password: ${DB_PASSWORD:saki}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:20}
+      # Serverless Postgres (e.g. Neon) closes idle connections; recycle before that happens.
+      max-lifetime: ${DB_MAX_LIFETIME:300000}
+      keepalive-time: ${DB_KEEPALIVE:120000}
+  jpa:
+    open-in-view: false
+    hibernate:
+      # Flyway owns the schema (src/main/resources/db/migration)
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: 15MB
+      max-request-size: 16MB
+  jackson:
+    default-property-inclusion: always
+    serialization:
+      write-dates-as-timestamps: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+saki:
+  security:
+    # Base64-encoded HMAC secret, at least 256 bits. Generate with: openssl rand -base64 48
+    jwt-secret: ${JWT_SECRET:}
+    jwt-expiration: ${JWT_EXPIRATION:24h}
+    jwt-issuer: saki-ai
+    # Google OAuth "Web application" client ID (…apps.googleusercontent.com). Blank = Google sign-in hidden.
+    google-client-id: ${GOOGLE_CLIENT_ID:}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}
+  ai:
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      model: ${GEMINI_MODEL:gemini-3.8-flash}
+      # Used when the main model is busy ("high demand"), rate limited or retired for this key.
+      fallback-models: ${GEMINI_FALLBACK_MODELS:gemini-3.6-flash,gemini-3.5-flash,gemini-flash-latest}
+      base-url: https://generativelanguage.googleapis.com/v1beta
+      temperature: 0.4
+      max-output-tokens: 16384
+      # Token budget for Gemini "thinking"; lower = faster voice replies. Use -1 for dynamic.
+      thinking-budget: ${GEMINI_THINKING_BUDGET:1024}
+      timeout: 90s
+      max-retries: 2
+    history-size: 10
+    max-editor-code-chars: 60000
+  tts:
+    # Ordered provider chain. The first provider that succeeds wins.
+    providers: ${TTS_PROVIDERS:gemini,azure,google}
+    # The answer and its explanation points are spoken; code is not.
+    max-spoken-chars: 3000
+    timeout: 60s
+    # Deliver text + code immediately; the voice follows on /topic/session/{id}/audio.
+    async-audio: ${TTS_ASYNC_AUDIO:true}
+    gemini:
+      # Uses the Gemini key by default, so no extra account is needed.
+      api-key: ${GEMINI_TTS_API_KEY:${GEMINI_API_KEY:}}
+      model: ${GEMINI_TTS_MODEL:gemini-3.8-flash-tts}
+      # Prebuilt voices: Charon / Orus / Puck (male), Kore / Aoede / Leda (female).
+      sinhala-voice: ${GEMINI_TTS_SINHALA_VOICE:Charon}
+      english-voice: ${GEMINI_TTS_ENGLISH_VOICE:Charon}
+      mp3-bitrate-kbps: 64
+    azure:
+      subscription-key: ${AZURE_SPEECH_KEY:}
+      region: ${AZURE_SPEECH_REGION:southeastasia}
+      sinhala-voice: ${AZURE_SINHALA_VOICE:si-LK-SameeraNeural}
+      english-voice: ${AZURE_ENGLISH_VOICE:en-US-AvaNeural}
+      output-format: audio-24khz-48kbitrate-mono-mp3
+    google:
+      api-key: ${GOOGLE_TTS_API_KEY:}
+      sinhala-voice: ${GOOGLE_SINHALA_VOICE:}
+      english-voice: ${GOOGLE_ENGLISH_VOICE:en-US-Neural2-F}
+  websocket:
+    endpoint: /ws
+    max-message-size-bytes: 262144
+    send-buffer-size-bytes: 4194304
