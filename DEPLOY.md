@@ -114,8 +114,9 @@
 
 ## පියවර 5 — Backend එකට Vercel URL එක දෙන්න (CORS)
 
-1. Render → **saki-backend** → **Environment** ගිහින් `CORS_ALLOWED_ORIGINS` එක ඔයාගේ ඇත්ත Vercel URL එකට වෙනස් කරන්න
-   (අගට `/` නැතුව), උදා: `https://saki-ai.vercel.app`.
+1. Render → **saki-backend** → **Environment** ගිහින් `CORS_ALLOWED_ORIGINS` එක ඔයාගේ **ඇත්ත** Vercel URL එකට වෙනස් කරන්න
+   (අගට `/` නැතුව). Vercel project page එකේ **Domains** යටතේ පළවෙනියට පේන URL එක ගන්න — එය `saki-ai.vercel.app`
+   නොවී `saki-ai-blue.vercel.app` වගේ වෙන්න පුළුවන්. ⚠️ එක අකුරක් වෙනස් වුණත් sign in / sign up වැඩ කරන්නේ නෑ.
    Local එකෙනුත් පාවිච්චි කරනවා නම් කොමා දාලා එකතු කරන්න:
    `https://saki-ai.vercel.app,http://localhost:5173,http://localhost:8081`
 2. **Save, rebuild, and deploy** ඔබන්න.
@@ -160,6 +161,8 @@ git push
 | ප්‍රශ්නය | විසඳුම |
 | --- | --- |
 | Web IDE එකේ "Waking up Saki's server…" විනාඩියක් පේනවා | සාමාන්‍යයි — free backend එක නිදාගෙන හිටියා. ඉඳලා බලන්න. |
+| Render logs / chat එකේ "Gemini rejected the API key" | Render → Environment → `GEMINI_API_KEY` එක ආයේ paste කරන්න (ඉස්සරහ/පිටිපස්සේ ඉඩ නැතුව). Key එක <https://aistudio.google.com/apikey> එකේ තවම තියෙනවද බලන්න. |
+| Google button එක click කළාම "origin is not allowed" / popup error | Google Cloud → **Clients** → Web client එකේ **Authorized JavaScript origins** එකට Vercel URL එක (`https://…vercel.app`) එකතු කරන්න. විනාඩි 5–10 ක් යනවා apply වෙන්න. |
 | Sign up කරද්දී "not reachable" / CORS error | Render එකේ `CORS_ALLOWED_ORIGINS` එක Vercel URL එකට **හරියටම** සමානද බලන්න (`https://`, අගට `/` නැතුව). |
 | Vercel build එක fail | Vercel project settings එකේ **Root Directory** = `saki-web` ද බලන්න. |
 | Render deploy එක fail, logs වල database error | `DB_URL` එක `jdbc:postgresql://` වලින් පටන් ගන්නවද, `?sslmode=require` අගට තියෙනවද, Neon pooling OFF ද බලන්න. |
