@@ -1,0 +1,9 @@
+# Normalize line endings in the repository; Linux build hosts (Render, Vercel) need LF.
+* text=auto
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.png binary
+*.jpg binary
+*.jar binary

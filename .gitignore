@@ -1,0 +1,22 @@
+# Secrets: never commit real keys (use .env.example as the template)
+.env
+.env.*
+!.env.example
+
+# Build output and dependencies (each app also has its own .gitignore)
+node_modules/
+dist/
+target/
+build/
+*.apk
+*.aab
+
+# Local tooling and OS files
+.idea/
+.vscode/
+*.log
+.DS_Store
+Thumbs.db
+
+# Not part of Saki AI (separate GitHub profile README project)
+github-profile-readme/
