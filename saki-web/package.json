@@ -1,0 +1,41 @@
+{
+  "name": "saki-web",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Saki AI - Bilingual Sinhala/English voice coding companion Web IDE",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "4.7.0",
+    "@stomp/stompjs": "7.1.1",
+    "lucide-react": "0.511.0",
+    "monaco-editor": "0.52.2",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-markdown": "10.1.0",
+    "remark-gfm": "4.0.1",
+    "zustand": "5.0.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.1",
+    "@tailwindcss/vite": "4.1.16",
+    "@types/node": "22.18.12",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "@vitejs/plugin-react": "5.1.0",
+    "eslint": "9.39.1",
+    "eslint-plugin-react-hooks": "5.2.0",
+    "eslint-plugin-react-refresh": "0.4.24",
+    "globals": "16.5.0",
+    "tailwindcss": "4.1.16",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.46.2",
+    "vite": "7.1.12"
+  }
+}
