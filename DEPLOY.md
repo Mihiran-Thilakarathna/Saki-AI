@@ -116,7 +116,9 @@
 
 1. Render → **saki-backend** → **Environment** ගිහින් `CORS_ALLOWED_ORIGINS` එක ඔයාගේ **ඇත්ත** Vercel URL එකට වෙනස් කරන්න
    (අගට `/` නැතුව). Vercel project page එකේ **Domains** යටතේ පළවෙනියට පේන URL එක ගන්න — එය `saki-ai.vercel.app`
-   නොවී `saki-ai-blue.vercel.app` වගේ වෙන්න පුළුවන්. ⚠️ එක අකුරක් වෙනස් වුණත් sign in / sign up වැඩ කරන්නේ නෑ.
+   නොවී `saki-ai-blue.vercel.app` වගේ වෙන්න පුළුවන් (නම කලින්ම වෙන කෙනෙක් අරන් නම්). ලස්සන නමක් ඕනි නම්
+   **Settings → Domains → Add** එකෙන් තවම කාටවත් නැති `xxx.vercel.app` එකක් (උදා: `saki-ai-app.vercel.app`) free
+   එකතු කරලා ඒක **Primary** කරන්න. ⚠️ එක අකුරක් වෙනස් වුණත් sign in / sign up වැඩ කරන්නේ නෑ.
    Local එකෙනුත් පාවිච්චි කරනවා නම් කොමා දාලා එකතු කරන්න:
    `https://saki-ai.vercel.app,http://localhost:5173,http://localhost:8081`
 2. **Save, rebuild, and deploy** ඔබන්න.
