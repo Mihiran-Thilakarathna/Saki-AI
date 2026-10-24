@@ -22,7 +22,7 @@ works on its own or as a **wireless microphone** for the Web IDE. Everything sta
 | [`saki-mobile/`](saki-mobile) | Flutter 3.38 / Dart 3.10, Riverpod 3, `record`, `just_audio`, `speech_to_text`, `stomp_dart_client`, `dio` |
 | [`docker-compose.yml`](docker-compose.yml) | PostgreSQL 16 + backend + Web IDE (nginx) |
 
-> **Live demo:** <https://saki-ai-app.vercel.app> (free hosting: the first visit after a quiet period can take
+> **Live demo:** <https://saki-ai-blue.vercel.app> (free hosting: the first visit after a quiet period can take
 > about a minute while the server wakes up).
 >
 > **Deploy online for free** (Vercel + Render + Neon, no credit card): see **[DEPLOY.md](DEPLOY.md)**.
