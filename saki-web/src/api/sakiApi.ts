@@ -33,6 +33,8 @@ export const sessionApi = {
   update: (id: string, request: UpdateSessionRequest) =>
     apiRequest<CodingSession>(`/api/v1/sessions/${id}`, { method: 'PATCH', json: request }),
   remove: (id: string) => apiRequest<void>(`/api/v1/sessions/${id}`, { method: 'DELETE' }),
+  /** Deletes every chat of the signed-in user. */
+  removeAll: () => apiRequest<void>('/api/v1/sessions', { method: 'DELETE' }),
   messages: (id: string) => apiRequest<ConversationMessage[]>(`/api/v1/sessions/${id}/messages`),
 };
 

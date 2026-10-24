@@ -63,6 +63,8 @@ interface WorkspaceState {
   createSession: (title?: string) => Promise<void>;
   renameSession: (id: string, title: string) => Promise<void>;
   deleteSession: (id: string) => Promise<void>;
+  /** Deletes all chats and starts a fresh one; false when it failed. */
+  clearHistory: () => Promise<boolean>;
 
   setEditorCode: (code: string) => void;
   setEditorLanguage: (language: string) => void;
@@ -381,6 +383,21 @@ export const useWorkspaceStore = create<WorkspaceState>()((set, get) => {
         }
       } catch (error) {
         toast.error(errorMessage(error));
+      }
+    },
+
+    clearHistory: async () => {
+      try {
+        window.clearTimeout(saveTimer);
+        await sessionApi.removeAll();
+        useAudioStore.getState().stop();
+        clearLocalState();
+        set({ sessions: [], activeSessionId: null, messages: [], editorCode: '', editorDirty: false, remoteActivity: null });
+        await get().createSession();
+        return true;
+      } catch (error) {
+        toast.error(errorMessage(error));
+        return false;
       }
     },
 

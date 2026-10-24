@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState, type DragEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type DragEvent } from 'react';
 import { FileUp } from 'lucide-react';
 import { ChatPanel } from '@/components/ChatPanel';
 import { EditorPanel } from '@/components/EditorPanel';
 import { SessionSidebar } from '@/components/SessionSidebar';
+import { SettingsDialog } from '@/components/SettingsDialog';
 import { TopBar } from '@/components/TopBar';
 import { importCodeFile } from '@/hooks/useCodeImport';
 import { useStompSession } from '@/hooks/useStompSession';
@@ -30,6 +31,8 @@ export function Workspace() {
   const [mobileView, setMobileView] = useState<MobileView>('chat');
   const [editorOpen, setEditorOpen] = useState(readEditorOpen);
   const [dragging, setDragging] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const closeSettings = useCallback(() => setSettingsOpen(false), []);
   const dragDepth = useRef(0);
 
   useEffect(() => {
@@ -93,6 +96,7 @@ export function Workspace() {
         onMobileViewChange={setMobileView}
         editorOpen={editorOpen}
         onToggleEditor={toggleEditor}
+        onOpenSettings={() => setSettingsOpen(true)}
       />
       <div className="relative flex min-h-0 flex-1">
         <SessionSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -116,6 +120,8 @@ export function Workspace() {
           </section>
         </main>
       </div>
+
+      <SettingsDialog open={settingsOpen} onClose={closeSettings} />
 
       {dragging && (
         <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center bg-ink-950/70 backdrop-blur-sm">

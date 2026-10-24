@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { Code2, LogOut, Menu, MessageSquare, Moon, PanelRightClose, PanelRightOpen, Sun, Volume2, VolumeX } from 'lucide-react';
+import { Code2, LogOut, Menu, MessageSquare, Moon, PanelRightClose, PanelRightOpen, Settings, Sun, WifiOff } from 'lucide-react';
 import { SakiLogo } from '@/components/SakiLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useThemeStore } from '@/lib/theme';
 import type { MobileView } from '@/components/Workspace';
 import type { ConnectionStatus } from '@/hooks/useStompSession';
-import { useAudioStore } from '@/store/audioStore';
 import { useAuthStore } from '@/store/authStore';
 import { useWorkspaceStore } from '@/store/workspaceStore';
 
@@ -16,18 +15,18 @@ interface Props {
   onMobileViewChange: (view: MobileView) => void;
   editorOpen: boolean;
   onToggleEditor: () => void;
+  onOpenSettings: () => void;
 }
 
-const CONNECTION: Record<ConnectionStatus, { text: string; dot: string }> = {
-  connected: { text: 'Connected · phone sync is live', dot: 'bg-emerald-500' },
-  connecting: { text: 'Reconnecting…', dot: 'bg-amber-500 animate-pulse' },
-  disconnected: { text: 'Offline', dot: 'bg-ink-400' },
-};
-
-export function TopBar({ connection, onToggleSidebar, mobileView, onMobileViewChange, editorOpen, onToggleEditor }: Props) {
-  const muted = useAudioStore((s) => s.muted);
-  const toggleMute = useAudioStore((s) => s.toggleMute);
-  const status = CONNECTION[connection];
+export function TopBar({
+  connection,
+  onToggleSidebar,
+  mobileView,
+  onMobileViewChange,
+  editorOpen,
+  onToggleEditor,
+  onOpenSettings,
+}: Props) {
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-2 border-b border-ink-700 bg-ink-850 px-2 sm:px-4">
@@ -62,9 +61,21 @@ export function TopBar({ connection, onToggleSidebar, mobileView, onMobileViewCh
           ))}
         </div>
 
-        <span className="mr-1 hidden h-9 items-center px-2 md:flex" title={status.text} aria-label={status.text}>
-          <span className={`h-2 w-2 rounded-full ${status.dot}`} />
-        </span>
+        {/* Only shown when live updates (answers, voice and phone sync) are interrupted. */}
+        {connection !== 'connected' && (
+          <span
+            className="mr-1 flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-500"
+            role="status"
+            title="Live updates from Saki are paused. They resume automatically."
+          >
+            {connection === 'connecting' ? (
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500" />
+            ) : (
+              <WifiOff className="h-3.5 w-3.5" />
+            )}
+            <span className="hidden sm:inline">{connection === 'connecting' ? 'Reconnecting…' : 'Offline'}</span>
+          </span>
+        )}
         <button
           type="button"
           className="icon-btn hidden lg:inline-flex"
@@ -74,23 +85,17 @@ export function TopBar({ connection, onToggleSidebar, mobileView, onMobileViewCh
         >
           {editorOpen ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
         </button>
-        <button
-          type="button"
-          className="icon-btn"
-          onClick={toggleMute}
-          aria-label={muted ? 'Turn Saki’s voice on' : 'Mute Saki’s voice'}
-          title={muted ? 'Turn Saki’s voice on' : 'Mute Saki’s voice'}
-        >
-          {muted ? <VolumeX className="h-4 w-4 text-rose-500" /> : <Volume2 className="h-4 w-4" />}
-        </button>
         <ThemeToggle className="icon-btn hidden sm:inline-flex" />
-        <UserMenu />
+        <button type="button" className="icon-btn" onClick={onOpenSettings} aria-label="Settings" title="Settings">
+          <Settings className="h-4 w-4" />
+        </button>
+        <UserMenu onOpenSettings={onOpenSettings} />
       </div>
     </header>
   );
 }
 
-function UserMenu() {
+function UserMenu({ onOpenSettings }: { onOpenSettings: () => void }) {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const theme = useThemeStore((s) => s.theme);
@@ -137,6 +142,17 @@ function UserMenu() {
             <p className="truncate text-xs text-ink-400">{user?.email}</p>
           </div>
           <div className="my-1 h-px bg-ink-700" />
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false);
+              onOpenSettings();
+            }}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-200 hover:bg-ink-800 hover:text-ink-100"
+          >
+            <Settings className="h-4 w-4" /> Settings
+          </button>
           <button
             type="button"
             role="menuitem"
