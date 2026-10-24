@@ -30,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "spring.datasource.username=sa",
         "spring.datasource.password=",
         "spring.flyway.enabled=false",
+        "saki.rate-limit.enabled=false",
         "spring.jpa.hibernate.ddl-auto=create-drop",
         "saki.security.jwt-secret=c2FraS1haS10ZXN0LXNlY3JldC1rZXktdGhhdC1pcy1sb25nLWVub3VnaC0xMjM0NTY=",
         "saki.ai.gemini.api-key=",
@@ -81,16 +82,16 @@ class GoogleSignInIntegrationTest {
     }
 
     @Test
-    void googleSignInLinksExistingPasswordAccountAndPasswordStillWorks() throws Exception {
-        String registered = mvc.perform(post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON)
+    void googleSignInNeverTakesOverAnExistingPasswordAccount() throws Exception {
+        // e.g. someone pre-registered this email with a password before its owner used Google.
+        mvc.perform(post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"fullName\":\"Amaya\",\"email\":\"amaya@gmail.com\",\"password\":\"supersecret1\"}"))
-                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
-        String id = mapper.readTree(registered).at("/user/id").asText();
+                .andExpect(status().isCreated());
         given(verifier.verify("token-amaya")).willReturn(new GoogleIdentity("sub-amaya", "amaya@gmail.com", "A"));
 
-        signIn("token-amaya").andExpect(status().isOk())
-                .andExpect(jsonPath("$.user.id").value(id))
-                .andExpect(jsonPath("$.user.fullName").value("Amaya"));
+        signIn("token-amaya").andExpect(status().isConflict())
+                .andExpect(jsonPath("$.errorCode").value("EMAIL_REGISTERED_WITH_PASSWORD"));
+        // The password account is unchanged and still works on its own.
         mvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"amaya@gmail.com\",\"password\":\"supersecret1\"}"))
                 .andExpect(status().isOk());

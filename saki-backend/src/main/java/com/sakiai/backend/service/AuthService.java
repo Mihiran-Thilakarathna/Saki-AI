@@ -90,9 +90,9 @@ public class AuthService {
     }
 
     /**
-     * Signs in with a verified Google ID token. Matches the Google account first, then a
-     * Saki account with the same (Google-verified) email, which gets linked; otherwise a
-     * new password-less account is created.
+     * Signs in with a verified Google ID token. Matches the Google account first; a new
+     * password-less account is created for a new email. An email that already belongs to a
+     * password account is refused rather than linked (see the pre-hijacking note below).
      */
     @Transactional
     public AuthResponseDto loginWithGoogle(GoogleLoginRequestDto request) {
@@ -106,9 +106,11 @@ public class AuthService {
                         throw new ConflictException("GOOGLE_ACCOUNT_MISMATCH",
                                 "This email is linked to a different Google account");
                     }
-                    existing.setGoogleSubject(google.subject());
-                    log.info("Linked Google sign-in to existing Saki user {}", existing.getId());
-                    return existing;
+                    // Never merge Google into a password account automatically: emails are not
+                    // verified at sign-up, so someone could pre-register a victim's email and
+                    // keep access after the victim signs in with Google (account pre-hijacking).
+                    throw new ConflictException("EMAIL_REGISTERED_WITH_PASSWORD",
+                            "An account with this email already exists. Sign in with your email and password.");
                 }))
                 .orElseGet(() -> createGoogleUser(google, email, request.preferredLanguage()));
         return issueToken(user);
