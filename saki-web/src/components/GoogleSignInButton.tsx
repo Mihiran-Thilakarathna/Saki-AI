@@ -3,6 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { authApi } from '@/api/sakiApi';
 import { errorMessage } from '@/lib/apiClient';
 import { loadGoogleIdentity } from '@/lib/googleIdentity';
+import { useThemeStore } from '@/lib/theme';
 import { useAuthStore } from '@/store/authStore';
 import type { SakiLanguage } from '@/types/api';
 
@@ -18,6 +19,7 @@ interface Props {
  */
 export function GoogleSignInButton({ mode, preferredLanguage, onError }: Props) {
   const loginWithGoogle = useAuthStore((s) => s.loginWithGoogle);
+  const theme = useThemeStore((s) => s.theme);
   const container = useRef<HTMLDivElement>(null);
   const [clientId, setClientId] = useState<string | null>(null);
   const [signingIn, setSigningIn] = useState(false);
@@ -63,7 +65,7 @@ export function GoogleSignInButton({ mode, preferredLanguage, onError }: Props) 
         parent.replaceChildren();
         gsi.renderButton(parent, {
           type: 'standard',
-          theme: document.documentElement.dataset.theme === 'light' ? 'outline' : 'filled_black',
+          theme: theme === 'light' ? 'outline' : 'filled_black',
           size: 'large',
           shape: 'pill',
           text: 'continue_with',
@@ -75,7 +77,7 @@ export function GoogleSignInButton({ mode, preferredLanguage, onError }: Props) 
     return () => {
       cancelled = true;
     };
-  }, [clientId, mode]);
+  }, [clientId, mode, theme]); // Google renders a fixed-color button: redraw it when the theme changes.
 
   if (!clientId) return null;
 
