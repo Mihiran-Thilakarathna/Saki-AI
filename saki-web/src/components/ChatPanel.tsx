@@ -48,7 +48,12 @@ export function ChatPanel({ onShowEditor }: { onShowEditor: () => void }) {
 
           {empty && (
             <div className="flex animate-fade-in flex-col items-center pt-6 text-center sm:pt-12">
-              <SakiLogo size={56} />
+              <div className="relative">
+                <div className="bg-brand-mesh pointer-events-none absolute -inset-16 opacity-60 blur-2xl dark:opacity-70" />
+                <div className="relative">
+                  <SakiLogo size={76} />
+                </div>
+              </div>
               <h2 className="mt-5 text-2xl font-semibold tracking-tight">How can I help with your code?</h2>
               <p className="mt-2 max-w-md text-sm text-ink-300">
                 Ask by voice or text in Sinhala or English. Saki explains the answer aloud and puts the complete
