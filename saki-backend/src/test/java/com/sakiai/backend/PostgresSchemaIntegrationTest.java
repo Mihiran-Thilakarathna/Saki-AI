@@ -42,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest(properties = {
         "spring.flyway.enabled=true",
+        "saki.rate-limit.enabled=false",
         "spring.jpa.hibernate.ddl-auto=validate",
         "saki.security.jwt-secret=c2FraS1haS10ZXN0LXNlY3JldC1rZXktdGhhdC1pcy1sb25nLWVub3VnaC0xMjM0NTY=",
         "saki.tts.azure.subscription-key=",

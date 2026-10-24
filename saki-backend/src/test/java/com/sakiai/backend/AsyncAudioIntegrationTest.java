@@ -43,6 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "spring.datasource.username=sa",
         "spring.datasource.password=",
         "spring.flyway.enabled=false",
+        "saki.rate-limit.enabled=false",
         "spring.jpa.hibernate.ddl-auto=create-drop",
         "saki.security.jwt-secret=c2FraS1haS10ZXN0LXNlY3JldC1rZXktdGhhdC1pcy1sb25nLWVub3VnaC0xMjM0NTY=",
         "saki.tts.async-audio=true"

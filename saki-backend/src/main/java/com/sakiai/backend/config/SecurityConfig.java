@@ -1,6 +1,7 @@
 package com.sakiai.backend.config;
 
 import com.sakiai.backend.security.JsonAuthenticationEntryPoint;
+import com.sakiai.backend.security.AbuseProtectionFilter;
 import com.sakiai.backend.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -28,6 +29,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AbuseProtectionFilter abuseProtectionFilter;
     private final JsonAuthenticationEntryPoint authenticationEntryPoint;
     private final SakiProperties properties;
 
@@ -52,7 +54,9 @@ public class SecurityConfig {
                         .requestMatchers(wsEndpoint, wsEndpoint + "/**").permitAll()
                         .requestMatchers("/actuator/health/**", "/actuator/info", "/error").permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                // After JWT auth, so per-user limits use the verified user id.
+                .addFilterAfter(abuseProtectionFilter, JwtAuthenticationFilter.class);
         return http.build();
     }
 
@@ -60,6 +64,14 @@ public class SecurityConfig {
     @Bean
     public FilterRegistrationBean<JwtAuthenticationFilter> jwtFilterServletRegistration() {
         FilterRegistrationBean<JwtAuthenticationFilter> registration = new FilterRegistrationBean<>(jwtAuthenticationFilter);
+        registration.setEnabled(false);
+        return registration;
+    }
+
+    /** Same as above: only run inside the security chain, not also as a plain servlet filter. */
+    @Bean
+    public FilterRegistrationBean<AbuseProtectionFilter> abuseFilterServletRegistration() {
+        FilterRegistrationBean<AbuseProtectionFilter> registration = new FilterRegistrationBean<>(abuseProtectionFilter);
         registration.setEnabled(false);
         return registration;
     }

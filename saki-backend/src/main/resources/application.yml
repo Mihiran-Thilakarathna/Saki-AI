@@ -2,8 +2,12 @@ server:
   # Render (and similar hosts) provide PORT; SERVER_PORT is the local override.
   port: ${PORT:${SERVER_PORT:8080}}
   shutdown: graceful
+  # Trust X-Forwarded-* only from internal proxies (Render, nginx), so client IPs can't be spoofed.
+  forward-headers-strategy: native
   error:
-    include-message: always
+    # Never echo exception text to clients; API errors are returned as ProblemDetail by GlobalExceptionHandler.
+    include-message: never
+    include-stacktrace: never
 
 spring:
   application:
@@ -52,6 +56,13 @@ management:
         enabled: true
 
 saki:
+  rate-limit:
+    enabled: ${RATE_LIMIT_ENABLED:true}
+    auth-per-minute: ${RATE_LIMIT_AUTH_PER_MINUTE:10}
+    ai-per-minute: ${RATE_LIMIT_AI_PER_MINUTE:12}
+    ai-per-day: ${RATE_LIMIT_AI_PER_DAY:200}
+    writes-per-minute: ${RATE_LIMIT_WRITES_PER_MINUTE:60}
+    max-json-body-bytes: 1048576
   security:
     # Base64-encoded HMAC secret, at least 256 bits. Generate with: openssl rand -base64 48
     jwt-secret: ${JWT_SECRET:}
