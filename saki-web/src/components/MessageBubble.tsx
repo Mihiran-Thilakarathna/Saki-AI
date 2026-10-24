@@ -156,13 +156,14 @@ function SakiMessage({ message, time, onOpenCode }: { message: ChatMessage; time
           {message.text}
         </p>
 
-        <AudioPlayer messageId={message.id} />
-
         {code?.explanationMarkdown && (
           <div className={`saki-markdown mt-3 ${isSinhala ? 'sinhala' : ''}`}>
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{code.explanationMarkdown}</ReactMarkdown>
           </div>
         )}
+
+        {/* Voice comes after the whole written answer, just above the code file. */}
+        <AudioPlayer messageId={message.id} />
 
         {hasCode && (
           <div className="mt-3 flex items-center gap-3 rounded-xl border border-ink-700 bg-ink-850 px-3 py-2.5">

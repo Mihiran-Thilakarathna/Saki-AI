@@ -1,5 +1,5 @@
 import type { MouseEvent } from 'react';
-import { Loader2, Pause, Play, Square, Volume2 } from 'lucide-react';
+import { Download, Loader2, Pause, Play, Square, Volume2 } from 'lucide-react';
 import { useAudioStore } from '@/store/audioStore';
 
 function formatTime(seconds: number): string {
@@ -8,7 +8,7 @@ function formatTime(seconds: number): string {
   return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, '0')}`;
 }
 
-/** Voice controls for one Saki answer: play/pause, stop, seekable progress and time. */
+/** Voice controls for one Saki answer: play/pause, stop, seekable progress, time and download. */
 export function AudioPlayer({ messageId }: { messageId: string }) {
   const replayable = useAudioStore((s) => Boolean(s.replayable[messageId]));
   const preparing = useAudioStore((s) => Boolean(s.preparing[messageId]));
@@ -20,6 +20,9 @@ export function AudioPlayer({ messageId }: { messageId: string }) {
   const pause = useAudioStore((s) => s.pause);
   const stop = useAudioStore((s) => s.stop);
   const seek = useAudioStore((s) => s.seek);
+  const downloadable = useAudioStore((s) => Boolean(s.downloadable[messageId]));
+  const download = useAudioStore((s) => s.download);
+  const rate = useAudioStore((s) => s.playbackRate);
 
   if (!replayable) return null;
 
@@ -112,6 +115,23 @@ export function AudioPlayer({ messageId }: { messageId: string }) {
             </>
           )}
         </span>
+      )}
+
+      {rate !== 1 && (
+        <span className="shrink-0 rounded-md bg-ink-750 px-1.5 py-0.5 text-[10px] font-semibold text-ink-300 tabular-nums" title="Playback speed (change it in Settings)">
+          {rate}×
+        </span>
+      )}
+      {downloadable && (
+        <button
+          type="button"
+          onClick={() => download(messageId)}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink-300 transition hover:bg-ink-750 hover:text-ink-100"
+          aria-label="Download Saki’s voice as MP3"
+          title="Download voice (MP3)"
+        >
+          <Download className="h-3.5 w-3.5" />
+        </button>
       )}
     </div>
   );

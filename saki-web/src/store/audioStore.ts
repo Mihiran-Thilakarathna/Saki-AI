@@ -25,6 +25,10 @@ interface AudioState {
   replayable: Record<string, true>;
   /** messageIds whose voice is still being prepared on the server. */
   preparing: Record<string, true>;
+  /** messageIds with a server voice (MP3) that can be saved as a file. */
+  downloadable: Record<string, true>;
+  /** Voice speed, 0.5–2 (1 = normal). */
+  playbackRate: number;
 
   /** Derived: true while audio is audibly playing. */
   speaking: boolean;
@@ -40,9 +44,14 @@ interface AudioState {
   stop: () => void;
   seek: (fraction: number) => void;
   toggleMute: () => void;
+  setPlaybackRate: (rate: number) => void;
+  /** Saves the voice of one answer as an MP3 file. */
+  download: (messageId: string) => void;
 }
 
 const MUTE_KEY = 'saki-muted';
+const RATE_KEY = 'saki-playback-rate';
+export const PLAYBACK_RATES = [0.75, 1, 1.25, 1.5, 1.75, 2] as const;
 const clips = new Map<string, CachedClip>();
 /** Audio that arrived before its answer was shown (rare WebSocket/HTTP race). */
 const earlyAudio = new Map<string, SakiAudio>();
@@ -75,6 +84,19 @@ function readMuted(): boolean {
     return false;
   }
 }
+
+function readRate(): number {
+  try {
+    const rate = Number(localStorage.getItem(RATE_KEY));
+    return rate >= 0.5 && rate <= 2 ? rate : 1;
+  } catch {
+    return 1;
+  }
+}
+
+const fileTime = (date: Date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` +
+  `-${String(date.getHours()).padStart(2, '0')}${String(date.getMinutes()).padStart(2, '0')}`;
 
 function without(record: Record<string, true>, key: string): Record<string, true> {
   if (!(key in record)) return record;
@@ -129,6 +151,7 @@ export const useAudioStore = create<AudioState>()((set, get) => {
     const utterance = new SpeechSynthesisUtterance(clip.text);
     utterance.voice = voice;
     utterance.lang = clip.language;
+    utterance.rate = get().playbackRate;
     utterance.onend = () => setPlayback('idle');
     utterance.onerror = () => setPlayback('idle');
     usingBrowserSpeech = true;
@@ -151,6 +174,9 @@ export const useAudioStore = create<AudioState>()((set, get) => {
     }
     const element = ensureElement();
     element.src = clip.src;
+    // A new source resets the speed to the default one, so set both.
+    element.defaultPlaybackRate = get().playbackRate;
+    element.playbackRate = get().playbackRate;
     set({ position: 0, duration: 0 });
     setPlayback('playing', messageId);
     element.play().catch((error: Error) => {
@@ -171,6 +197,8 @@ export const useAudioStore = create<AudioState>()((set, get) => {
     lastMessageId: null,
     replayable: {},
     preparing: {},
+    downloadable: {},
+    playbackRate: readRate(),
     speaking: false,
     speakingMessageId: null,
 
@@ -184,7 +212,9 @@ export const useAudioStore = create<AudioState>()((set, get) => {
       if (early) {
         earlyAudio.delete(response.messageId);
         if (early.audioBase64) clip.src = toSrc(early.audioBase64, early.audioMimeType);
-      } else if (response.audioPending && !src) {
+      }
+      if (clip.src) set({ downloadable: { ...get().downloadable, [response.messageId]: true } });
+      if (!early && response.audioPending && !src) {
         // The answer is already on screen; Saki starts speaking when the voice arrives.
         clip.awaitingAudio = true;
         set({ lastMessageId: response.messageId, preparing: { ...get().preparing, [response.messageId]: true } });
@@ -201,7 +231,10 @@ export const useAudioStore = create<AudioState>()((set, get) => {
         return;
       }
       if (audio.audioBase64) clip.src = toSrc(audio.audioBase64, audio.audioMimeType);
-      set({ preparing: without(get().preparing, audio.messageId) });
+      set({
+        preparing: without(get().preparing, audio.messageId),
+        ...(clip.src ? { downloadable: { ...get().downloadable, [audio.messageId]: true } } : {}),
+      });
       if (!clip.awaitingAudio) return;
       clip.awaitingAudio = false;
       // Only speak if nothing newer has started meanwhile.
@@ -259,6 +292,29 @@ export const useAudioStore = create<AudioState>()((set, get) => {
         // Storage unavailable (private mode): mute still works for this tab.
       }
       set({ muted });
+    },
+
+    setPlaybackRate: (rate) => {
+      const playbackRate = Math.max(0.5, Math.min(2, rate));
+      if (audioElement) {
+        audioElement.defaultPlaybackRate = playbackRate;
+        audioElement.playbackRate = playbackRate;
+      }
+      try {
+        localStorage.setItem(RATE_KEY, String(playbackRate));
+      } catch {
+        // Not persisted; applies for this tab.
+      }
+      set({ playbackRate });
+    },
+
+    download: (messageId) => {
+      const clip = clips.get(messageId);
+      if (!clip?.src) return;
+      const link = document.createElement('a');
+      link.href = clip.src;
+      link.download = `saki-answer-${fileTime(new Date())}.mp3`;
+      link.click();
     },
   };
 });
