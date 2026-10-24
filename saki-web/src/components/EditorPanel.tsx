@@ -18,7 +18,6 @@ export function EditorPanel() {
   const dirty = useWorkspaceStore((s) => s.editorDirty);
   const injectionCount = useWorkspaceStore((s) => s.injectionCount);
   const sessionLoading = useWorkspaceStore((s) => s.sessionLoading);
-  const activeSessionId = useWorkspaceStore((s) => s.activeSessionId);
   const setEditorCode = useWorkspaceStore((s) => s.setEditorCode);
   const setEditorLanguage = useWorkspaceStore((s) => s.setEditorLanguage);
   const setFileName = useWorkspaceStore((s) => s.setFileName);
@@ -96,7 +95,6 @@ export function EditorPanel() {
             type="button"
             className="btn-secondary mr-1 px-2 py-1 text-xs"
             onClick={() => fileInputRef.current?.click()}
-            disabled={!activeSessionId}
             title="Open a code file from your computer"
             aria-label="Import a code file"
           >
@@ -138,7 +136,7 @@ export function EditorPanel() {
             <Loader2 className="h-6 w-6 animate-spin text-saki-400" />
           </div>
         )}
-        {!code && !sessionLoading && activeSessionId && (
+        {!code && !sessionLoading && (
           <div className="pointer-events-none absolute inset-x-0 top-1/3 z-10 mx-auto max-w-sm px-6 text-center">
             <FileCode2 className="mx-auto h-8 w-8 text-ink-600" />
             <p className="mt-3 text-sm font-medium text-ink-200">Your editor is empty</p>

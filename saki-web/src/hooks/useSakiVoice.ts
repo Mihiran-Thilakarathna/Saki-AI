@@ -23,7 +23,8 @@ function readWakePreference(): boolean {
 export function useSakiVoice() {
   const sendVoiceQuery = useWorkspaceStore((s) => s.sendVoiceQuery);
   const thinking = useWorkspaceStore((s) => s.thinking);
-  const hasSession = useWorkspaceStore((s) => Boolean(s.activeSessionId) && !s.sessionLoading);
+  // Also on the home screen: the first question creates the chat.
+  const hasSession = useWorkspaceStore((s) => !s.sessionLoading);
   const speaking = useAudioStore((s) => s.speaking);
   const [wakeEnabled, setWakeEnabled] = useState(readWakePreference);
   const [handsFree, setHandsFree] = useState(false);

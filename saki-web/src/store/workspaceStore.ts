@@ -63,6 +63,8 @@ interface WorkspaceState {
   loadSessions: () => Promise<void>;
   selectSession: (id: string) => Promise<void>;
   createSession: (title?: string) => Promise<void>;
+  /** Leaves the current chat for the home screen (a new chat that is saved on the first question). */
+  startNewChat: () => void;
   renameSession: (id: string, title: string) => Promise<void>;
   deleteSession: (id: string) => Promise<void>;
   /** Deletes all chats and starts a fresh one; false when it failed. */
@@ -225,11 +227,9 @@ export const useWorkspaceStore = create<WorkspaceState>()((set, get) => {
    * marked failed with the reason and can be retried.
    */
   const runQuery = async (pending: PendingQuery, retryId?: string): Promise<SakiResponse | null> => {
-    const { activeSessionId: sessionId, editorCode, editorLanguage, thinking } = get();
-    if (!sessionId) {
-      toast.error('Create or select a chat first.');
-      return null;
-    }
+    const { editorCode, editorLanguage, thinking } = get();
+    // No chat yet (the home screen): the first question creates it.
+    let sessionId = get().activeSessionId;
     if (thinking) return null;
 
     const localId = retryId ?? `local-${++localSequence}`;
@@ -261,6 +261,11 @@ export const useWorkspaceStore = create<WorkspaceState>()((set, get) => {
     set({ thinking: true, thinkingSince: Date.now(), thinkingMode: pending.kind === 'voice' ? 'VOICE' : 'TEXT' });
 
     try {
+      if (!sessionId) {
+        const created = await sessionApi.create(undefined, editorLanguage);
+        sessionId = created.id;
+        set({ sessions: [created, ...get().sessions], activeSessionId: created.id });
+      }
       const response =
         pending.kind === 'text'
           ? await assistantApi.textQuery({
@@ -302,10 +307,10 @@ export const useWorkspaceStore = create<WorkspaceState>()((set, get) => {
     try {
       const sessions = await sessionApi.list();
       set({ sessions });
+      // Like other chat apps, Saki opens on a new chat (the home screen); earlier chats are in
+      // the sidebar. The chat is only created on the server when the first question is sent.
       const { activeSessionId } = get();
-      if (activeSessionId && sessions.some((s) => s.id === activeSessionId)) return;
-      if (sessions.length > 0) await get().selectSession(sessions[0].id);
-      else await get().createSession();
+      if (activeSessionId && !sessions.some((s) => s.id === activeSessionId)) get().startNewChat();
     } catch (error) {
       toast.error(errorMessage(error));
     } finally {
@@ -352,10 +357,29 @@ export const useWorkspaceStore = create<WorkspaceState>()((set, get) => {
       }
     },
 
+    startNewChat: () => {
+      void get().flushEditorSave();
+      selectGeneration++;
+      useAudioStore.getState().stop();
+      clearLocalState();
+      window.clearTimeout(saveTimer);
+      set({
+        activeSessionId: null,
+        sessionLoading: false,
+        messages: [],
+        editorCode: '',
+        editorDirty: false,
+        fileName: defaultFileName(get().editorLanguage),
+        remoteActivity: null,
+      });
+    },
+
     createSession: async (title) => {
-      // Already on an empty chat: reuse it instead of piling up empty chats.
-      const { activeSessionId, messages, editorCode, sessionLoading } = get();
-      if (!title && activeSessionId && !sessionLoading && messages.length === 0 && !editorCode.trim()) return;
+      // Without a title this is "New chat": open the home screen; the chat is created on the first question.
+      if (!title) {
+        get().startNewChat();
+        return;
+      }
       try {
         const session = await sessionApi.create(title, get().editorLanguage);
         set({ sessions: [session, ...get().sessions] });
@@ -380,10 +404,9 @@ export const useWorkspaceStore = create<WorkspaceState>()((set, get) => {
         const sessions = get().sessions.filter((s) => s.id !== id);
         set({ sessions });
         if (get().activeSessionId === id) {
-          window.clearTimeout(saveTimer);
-          set({ activeSessionId: null, messages: [], editorCode: '', editorDirty: false });
-          if (sessions.length > 0) await get().selectSession(sessions[0].id);
-          else await get().createSession();
+          // The chat is gone, so its unsaved editor code must not be saved.
+          set({ editorDirty: false });
+          get().startNewChat();
         }
       } catch (error) {
         toast.error(errorMessage(error));
@@ -396,8 +419,8 @@ export const useWorkspaceStore = create<WorkspaceState>()((set, get) => {
         await sessionApi.removeAll();
         useAudioStore.getState().stop();
         clearLocalState();
-        set({ sessions: [], activeSessionId: null, messages: [], editorCode: '', editorDirty: false, remoteActivity: null });
-        await get().createSession();
+        set({ sessions: [], editorDirty: false });
+        get().startNewChat();
         return true;
       } catch (error) {
         toast.error(errorMessage(error));

@@ -4,10 +4,6 @@ import { useWorkspaceStore } from '@/store/workspaceStore';
 
 /** Opens a local code file in the editor (Saki reads the editor with every question). */
 export async function importCodeFile(file: File): Promise<boolean> {
-  if (!useWorkspaceStore.getState().activeSessionId) {
-    toast.error('Open a chat first, then import a file.');
-    return false;
-  }
   try {
     const { name, content } = await readCodeFile(file);
     useWorkspaceStore.getState().importFile(name, content);
