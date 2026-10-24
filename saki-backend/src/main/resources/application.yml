@@ -99,6 +99,8 @@ saki:
       # Uses the Gemini key by default, so no extra account is needed.
       api-key: ${GEMINI_TTS_API_KEY:${GEMINI_API_KEY:}}
       model: ${GEMINI_TTS_MODEL:gemini-3.8-flash-tts}
+      # Each model has its own free daily quota; the lite voice takes over when the main one runs out.
+      fallback-models: ${GEMINI_TTS_FALLBACK_MODELS:gemini-3.8-flash-lite-tts}
       # Prebuilt voices: Charon / Orus / Puck (male), Kore / Aoede / Leda (female).
       sinhala-voice: ${GEMINI_TTS_SINHALA_VOICE:Charon}
       english-voice: ${GEMINI_TTS_ENGLISH_VOICE:Charon}

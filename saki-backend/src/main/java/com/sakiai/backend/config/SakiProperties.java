@@ -90,12 +90,24 @@ public record SakiProperties(
     public record GeminiTts(
             String apiKey,
             @NotBlank String model,
+            /* Tried in order when the main voice model is out of quota, overloaded or retired. */
+            List<String> fallbackModels,
             @NotBlank String sinhalaVoice,
             @NotBlank String englishVoice,
             @Min(32) int mp3BitrateKbps
     ) {
         public boolean isConfigured() {
             return apiKey != null && !apiKey.isBlank();
+        }
+
+        /** Main model first, then distinct, non-blank fallbacks. */
+        public List<String> modelChain() {
+            java.util.LinkedHashSet<String> chain = new java.util.LinkedHashSet<>();
+            chain.add(model.trim());
+            if (fallbackModels != null) {
+                fallbackModels.stream().filter(m -> m != null && !m.isBlank()).map(String::trim).forEach(chain::add);
+            }
+            return List.copyOf(chain);
         }
     }
 

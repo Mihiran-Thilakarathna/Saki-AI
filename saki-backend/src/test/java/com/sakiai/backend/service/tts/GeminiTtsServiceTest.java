@@ -80,6 +80,22 @@ class GeminiTtsServiceTest {
     }
 
     @Test
+    void mainModelOutOfQuotaFallsBackToTheNextVoiceModel() throws IOException {
+        start("{\"error\":{\"code\":429,\"message\":\"quota exceeded\"}}", 429);
+        String audio = Base64.getEncoder().encodeToString(wav(pcmTone(24_000, 0.5), 24_000));
+        byte[] ok = ("{\"candidates\":[{\"content\":{\"parts\":[{\"inlineData\":{\"mimeType\":\"audio/wav\",\"data\":\""
+                + audio + "\"}}]}}]}").getBytes(StandardCharsets.UTF_8);
+        server.createContext("/v1beta/models/backup-tts:generateContent", exchange -> {
+            exchange.getResponseHeaders().add("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, ok.length);
+            exchange.getResponseBody().write(ok);
+            exchange.close();
+        });
+
+        assertMp3(service().synthesize("hello", "en-US"));
+    }
+
+    @Test
     void notConfiguredWithoutApiKey() {
         GeminiTtsService service = new GeminiTtsService(RestClient.create(), mapper, properties("", "http://unused"));
         assertThat(service.supports("si-LK")).isFalse();
@@ -119,7 +135,7 @@ class GeminiTtsServiceTest {
         SakiProperties.Gemini gemini = new SakiProperties.Gemini("unused", "gemini-test", List.of(), baseUrl, 0.4, 1024,
                 0, Duration.ofSeconds(5), 0);
         SakiProperties.Tts tts = new SakiProperties.Tts(List.of("gemini"), 1500, Duration.ofSeconds(5), false,
-                new SakiProperties.GeminiTts(apiKey, "test-tts", "SinhalaVoice", "EnglishVoice", 64),
+                new SakiProperties.GeminiTts(apiKey, "test-tts", List.of("backup-tts"), "SinhalaVoice", "EnglishVoice", 64),
                 null, null);
         return new SakiProperties(null, null, new SakiProperties.Ai(gemini, 10, 60000), tts, null);
     }

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sakiai.backend.config.HttpClientConfig;
 import com.sakiai.backend.config.SakiProperties;
 import com.sakiai.backend.domain.SakiLanguage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
 import java.util.Base64;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,8 +24,10 @@ import java.util.regex.Pattern;
  * Gemini native text-to-speech (e.g. {@code gemini-3.8-flash-tts}). Needs no extra
  * account beyond the Gemini key, speaks Sinhala and Singlish naturally, and is the
  * default first provider. Gemini returns WAV or raw 16-bit PCM, which is re-encoded
- * to MP3 so clients get the same format as from Azure or Google.
+ * to MP3 so clients get the same format as from Azure or Google. When a model is out of
+ * quota (429), overloaded (5xx) or retired (404), the next model in the chain is tried.
  */
+@Slf4j
 @Service
 public class GeminiTtsService implements TtsService {
 
@@ -68,22 +72,7 @@ public class GeminiTtsService implements TtsService {
         config.putObject("speechConfig").putObject("voiceConfig").putObject("prebuiltVoiceConfig")
                 .put("voiceName", sinhala ? tts.sinhalaVoice() : tts.englishVoice());
 
-        JsonNode response;
-        try {
-            response = restClient.post()
-                    .uri(baseUrl + "/models/{model}:generateContent", tts.model())
-                    .header("x-goog-api-key", tts.apiKey())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(body)
-                    .retrieve()
-                    .body(JsonNode.class);
-        } catch (RestClientResponseException ex) {
-            throw new TtsException("Gemini TTS failed with " + ex.getStatusCode().value()
-                    + " for " + language + ": " + ex.getResponseBodyAsString(), ex);
-        } catch (RestClientException ex) {
-            throw new TtsException("Gemini TTS unreachable: " + ex.getMessage(), ex);
-        }
-
+        JsonNode response = generate(body, language);
         JsonNode inline = findInlineAudio(response);
         if (inline == null) {
             throw new TtsException("Gemini TTS returned no audio");
@@ -91,6 +80,34 @@ public class GeminiTtsService implements TtsService {
         byte[] audio = Base64.getDecoder().decode(inline.path("data").asText(""));
         String mimeType = inline.path("mimeType").asText("").toLowerCase(Locale.ROOT);
         return toMp3(audio, mimeType);
+    }
+
+    private JsonNode generate(ObjectNode body, String language) {
+        List<String> models = tts.modelChain();
+        for (int i = 0; i < models.size(); i++) {
+            String model = models.get(i);
+            try {
+                return restClient.post()
+                        .uri(baseUrl + "/models/{model}:generateContent", model)
+                        .header("x-goog-api-key", tts.apiKey())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(body)
+                        .retrieve()
+                        .body(JsonNode.class);
+            } catch (RestClientResponseException ex) {
+                int status = ex.getStatusCode().value();
+                boolean last = i == models.size() - 1;
+                if (!last && (status == 429 || status == 404 || status >= 500)) {
+                    log.warn("Gemini TTS model {} failed with {}; trying {}", model, status, models.get(i + 1));
+                    continue;
+                }
+                throw new TtsException("Gemini TTS failed with " + status + " for " + language + " (" + model + "): "
+                        + ex.getResponseBodyAsString(), ex);
+            } catch (RestClientException ex) {
+                throw new TtsException("Gemini TTS unreachable: " + ex.getMessage(), ex);
+            }
+        }
+        throw new TtsException("No Gemini TTS model configured");
     }
 
     private static JsonNode findInlineAudio(JsonNode response) {
