@@ -5,8 +5,8 @@ const TEXT_STEPS = ['Thinking', 'Reading your code', 'Writing code', 'Preparing 
 const VOICE_STEPS = ['Understanding your voice', 'Thinking', 'Writing code', 'Preparing the answer'];
 const DETAILS = ['Analyzing your request…', 'Generating code…', 'Checking the details…'];
 
-/** Brand gradient stops for the seven dots (coral -> magenta -> blue -> cyan). */
-const DOT_COLORS = ['var(--grad-1)', '#e04e8c', 'var(--grad-2)', '#8d4ed4', 'var(--grad-3)', '#3a92e8', 'var(--grad-4)'];
+/** Brand gradient stops for the seven dots (cyan -> blue -> indigo -> violet). */
+const DOT_COLORS = ['var(--grad-1)', '#3aa5f3', 'var(--grad-2)', '#4f74f4', 'var(--grad-3)', '#865df4', 'var(--grad-4)'];
 
 interface Props {
   mode: 'VOICE' | 'TEXT';

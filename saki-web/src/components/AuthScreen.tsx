@@ -59,7 +59,7 @@ export function AuthScreen() {
   return (
     <main className="flex min-h-full">
       {/* Brand panel */}
-      <section className="relative hidden w-[46%] max-w-[640px] flex-col justify-between overflow-hidden bg-ink-800 p-12 text-ink-100 lg:flex dark:bg-[#0b0f17] dark:text-white">
+      <section className="relative hidden w-[46%] max-w-[640px] flex-col justify-between overflow-hidden bg-ink-800 p-12 text-ink-100 lg:flex dark:bg-[#0a0d1c] dark:text-white">
                 <div className="bg-brand-mesh pointer-events-none absolute inset-x-0 -bottom-24 h-[70%] opacity-35 blur-3xl dark:opacity-45" />
 
         <div className="relative flex items-center gap-3">
@@ -79,7 +79,7 @@ export function AuthScreen() {
           <ul className="mt-10 space-y-5">
             {FEATURES.map(({ icon: Icon, title, text }) => (
               <li key={title} className="flex gap-4">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ink-850 text-saki-400 shadow-sm dark:bg-white/10 dark:text-[#2dd4bf] dark:shadow-none">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ink-850 text-saki-400 shadow-sm dark:bg-white/10 dark:text-[#38bdf8] dark:shadow-none">
                   <Icon className="h-5 w-5" />
                 </span>
                 <span>

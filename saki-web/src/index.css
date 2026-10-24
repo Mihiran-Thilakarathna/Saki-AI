@@ -3,9 +3,9 @@
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 /*
- * Saki theme. Dark: deep ink surfaces, teal (saki) and violet (iris) accents.
+ * Saki theme, taken from the robot logo. Dark: navy surfaces, sky-blue (saki) and violet (iris) accents.
  * Light: white surfaces with the same accents. Utilities use the ink-* (surfaces and
- * text), saki-* (teal accent) and iris-* (violet accent) names; the actual colors
+ * text), saki-* (sky-blue accent) and iris-* (violet accent) names; the actual colors
  * come from the variables below, switched by <html data-theme="light|dark">.
  */
 @theme inline {
@@ -62,32 +62,32 @@
 
 :root,
 :root[data-theme='dark'] {
-  --ink-950: #07090f;
-  --ink-900: #0b0f17;
-  --ink-850: #0f141e;
-  --ink-800: #131a26;
-  --ink-750: #182030;
-  --ink-700: #1f293b;
-  --ink-600: #2a3548;
+  --ink-950: #060815;
+  --ink-900: #0a0d1c;
+  --ink-850: #0e1226;
+  --ink-800: #131830;
+  --ink-750: #182039;
+  --ink-700: #212a4a;
+  --ink-600: #2d385e;
   --ink-400: #6b7a90;
   --ink-300: #8b98a9;
   --ink-200: #b6c2d1;
   --ink-100: #e6edf3;
 
-  --saki-300: #5eead4;
-  --saki-400: #2dd4bf;
-  --saki-500: #14b8a6;
-  --saki-600: #0d9488;
+  --saki-300: #7dd3fc;
+  --saki-400: #38bdf8;
+  --saki-500: #0ea5e9;
+  --saki-600: #0284c7;
   --iris-400: #a78bfa;
   --iris-500: #8b5cf6;
   --iris-600: #7c3aed;
 
 
-  /* Brand gradient (coral -> magenta -> blue -> cyan). */
-  --grad-1: #ff5a6e;
-  --grad-2: #c13fa8;
-  --grad-3: #5b5cf0;
-  --grad-4: #19c9e0;
+  /* Brand gradient from the robot logo (cyan -> blue -> indigo -> violet). */
+  --grad-1: #38c8f0;
+  --grad-2: #3b82f6;
+  --grad-3: #6366f1;
+  --grad-4: #a855f7;
   --brand-gradient: linear-gradient(110deg, var(--grad-1) 0%, var(--grad-2) 34%, var(--grad-3) 68%, var(--grad-4) 100%);
 
   color-scheme: dark;
@@ -106,20 +106,20 @@
   --ink-200: #2b3645;
   --ink-100: #0f1724;
 
-  --saki-300: #0f766e;
-  --saki-400: #0d9488;
-  --saki-500: #14b8a6;
-  --saki-600: #0d9488;
+  --saki-300: #0369a1;
+  --saki-400: #0284c7;
+  --saki-500: #0ea5e9;
+  --saki-600: #0284c7;
   --iris-400: #7c3aed;
   --iris-500: #8b5cf6;
   --iris-600: #6d28d9;
 
 
-  /* Brand gradient (coral -> magenta -> blue -> cyan). */
-  --grad-1: #f0435a;
-  --grad-2: #c13fa8;
-  --grad-3: #5b5cf0;
-  --grad-4: #0fb5cc;
+  /* Brand gradient from the robot logo (cyan -> blue -> indigo -> violet). */
+  --grad-1: #0ea5e9;
+  --grad-2: #2563eb;
+  --grad-3: #4f46e5;
+  --grad-4: #9333ea;
   --brand-gradient: linear-gradient(110deg, var(--grad-1) 0%, var(--grad-2) 34%, var(--grad-3) 68%, var(--grad-4) 100%);
 
   color-scheme: light;

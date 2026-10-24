@@ -9,7 +9,7 @@ interface Props {
 }
 
 const BAR_COUNT = 36;
-const SAKI_GRADIENT: string[] = ['#ff5a6e', '#c13fa8', '#5b5cf0', '#19c9e0'];
+const SAKI_GRADIENT: string[] = ['#38c8f0', '#3b82f6', '#6366f1', '#a855f7'];
 
 /** Scrolling live input-level bars drawn on a canvas (no React re-renders per frame). */
 export function Waveform({ active, getLevel, className, colors = SAKI_GRADIENT }: Props) {
