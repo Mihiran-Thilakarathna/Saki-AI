@@ -250,10 +250,35 @@ Subscriptions are only allowed for sessions you own.
 
 ---
 
-## 6. Troubleshooting
+## 6. Security
+
+- **SQL injection:** all database access goes through Spring Data JPA derived queries (parameterized); there is no
+  hand-written SQL.
+- **Data isolation:** every session, message and code read or write checks that the session belongs to the signed-in
+  user; WebSocket subscriptions are checked the same way.
+- **Accounts:** passwords are hashed with BCrypt (cost 12); login timing does not reveal which emails exist. Google
+  ID tokens are verified (signature, issuer, audience, expiry, verified email). Google sign-in never merges into an
+  existing password account, which prevents account pre-hijacking.
+- **Abuse limits** (per client IP for login/sign-up, per user for everything else), configurable with env vars:
+
+  | Variable | Default |
+  | --- | --- |
+  | `RATE_LIMIT_AUTH_PER_MINUTE` | 10 login / sign-up / Google attempts per IP |
+  | `RATE_LIMIT_AI_PER_MINUTE` / `RATE_LIMIT_AI_PER_DAY` | 12 / 200 questions per user |
+  | `RATE_LIMIT_WRITES_PER_MINUTE` | 60 session changes per user |
+
+  JSON bodies over 1 MB are refused, and client IPs come from the reverse proxy (`X-Forwarded-For` cannot be spoofed).
+- **Errors** never include stack traces or exception text.
+- **Browser headers** (Vercel and the Docker nginx): a strict Content-Security-Policy, `X-Frame-Options: DENY`,
+  `nosniff`, a strict referrer policy, and a Permissions-Policy that allows the microphone for this site only.
+- **Secrets** live only in `.env` (git-ignored) or the hosting dashboards.
+
+## 7. Troubleshooting
 
 | Problem | Fix |
 | --- | --- |
+| "Too many requests" (`RATE_LIMITED`, 429) | An abuse limit was hit; wait the seconds in `Retry-After`, or raise the `RATE_LIMIT_*` values. |
+| Google sign-in: "An account with this email already exists" | That email signed up with a password; sign in with the password instead. |
 | `AI_NOT_CONFIGURED` (503) | Set `GEMINI_API_KEY` and restart the backend. |
 | Google button missing | `GOOGLE_CLIENT_ID` is blank, or the backend was not restarted after setting it. |
 | Google popup: "origin is not allowed" / `idpiframe_initialization_failed` | Add the exact Web IDE URL (e.g. `http://localhost:5173`) to **Authorized JavaScript origins**; changes can take a few minutes. |
