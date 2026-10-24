@@ -146,6 +146,11 @@ function UserMenu() {
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             {theme === 'dark' ? 'Light mode' : 'Dark mode'}
           </button>
+          <div className="flex gap-3 px-3 py-1.5 text-xs text-ink-400">
+            <a href="/privacy" className="hover:text-ink-100">Privacy</a>
+            <a href="/terms" className="hover:text-ink-100">Terms</a>
+          </div>
+          <div className="my-1 h-px bg-ink-700" />
           <button
             type="button"
             role="menuitem"

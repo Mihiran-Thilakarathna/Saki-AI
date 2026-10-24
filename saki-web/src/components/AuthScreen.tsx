@@ -91,7 +91,11 @@ export function AuthScreen() {
           </ul>
         </div>
 
-        <p className="relative text-xs text-ink-400 dark:text-white/40">Saki is AI and can make mistakes. Please double-check responses.</p>
+        <p className="relative text-xs text-ink-400 dark:text-white/40">
+          Saki is AI and can make mistakes. Please double-check responses. ·{' '}
+          <a href="/privacy" className="underline hover:text-ink-200 dark:hover:text-white/70">Privacy</a> ·{' '}
+          <a href="/terms" className="underline hover:text-ink-200 dark:hover:text-white/70">Terms</a>
+        </p>
       </section>
 
       {/* Form */}
@@ -181,6 +185,11 @@ export function AuthScreen() {
             >
               {registering ? 'Sign in' : 'Create an account'}
             </button>
+          </p>
+          <p className="mt-4 text-center text-xs text-ink-400">
+            By continuing, you agree to Saki’s{' '}
+            <a href="/terms" className="underline hover:text-ink-200">Terms of Service</a> and{' '}
+            <a href="/privacy" className="underline hover:text-ink-200">Privacy Policy</a>.
           </p>
         </div>
       </section>
