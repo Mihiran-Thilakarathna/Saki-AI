@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Code2, Smartphone } from 'lucide-react';
+import { SakiLogo } from '@/components/SakiLogo';
 
 const TEXT_STEPS = ['Thinking', 'Reading your code', 'Writing code', 'Preparing the answer'];
 const VOICE_STEPS = ['Understanding your voice', 'Thinking', 'Writing code', 'Preparing the answer'];
 const DETAILS = ['Analyzing your request…', 'Generating code…', 'Checking the details…'];
 
-/** Brand gradient stops for the seven dots (cyan -> blue -> indigo -> violet). */
-const DOT_COLORS = ['var(--grad-1)', '#3aa5f3', 'var(--grad-2)', '#4f74f4', 'var(--grad-3)', '#865df4', 'var(--grad-4)'];
+/** Seven dots along the brand gradient of the current chat theme. */
+const mix = (a: number, b: number) => `color-mix(in oklab, var(--grad-${a}), var(--grad-${b}))`;
+const DOT_COLORS = ['var(--grad-1)', mix(1, 2), 'var(--grad-2)', mix(2, 3), 'var(--grad-3)', mix(3, 4), 'var(--grad-4)'];
 
 interface Props {
   mode: 'VOICE' | 'TEXT';
@@ -17,7 +19,7 @@ interface Props {
 }
 
 /**
- * Saki's "working on it" state: the robot avatar breathes inside an orbiting gradient arc
+ * Saki's "working on it" state: Saki's logo breathes inside an orbiting gradient arc
  * with a code badge, next to a status line, a wave of gradient dots and the elapsed time.
  */
 export function ThinkingIndicator({ mode, since, remote = false }: Props) {
@@ -42,7 +44,7 @@ export function ThinkingIndicator({ mode, since, remote = false }: Props) {
           <span className="saki-orb-dot" />
         </span>
         <span className="saki-orb-face">
-          <img src="/saki-avatar.webp" alt="" draggable={false} />
+          <SakiLogo size={38} animated />
         </span>
         <span className="saki-orb-badge">
           <Code2 className="h-3 w-3" />

@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Editor, { type OnMount } from '@monaco-editor/react';
 import { Check, CheckCheck, Copy, Download, FileCode2, FileUp, Loader2 } from 'lucide-react';
 import { importCodeFile } from '@/hooks/useCodeImport';
 import { IMPORT_ACCEPT } from '@/lib/fileImport';
 import { EDITOR_LANGUAGES } from '@/lib/languages';
-import { SAKI_DARK_THEME, SAKI_LIGHT_THEME } from '@/lib/monacoSetup';
+import { sakiEditorTheme } from '@/lib/monacoSetup';
 import { useThemeStore } from '@/lib/theme';
 import { toast } from '@/store/toastStore';
 import { useWorkspaceStore } from '@/store/workspaceStore';
@@ -24,6 +24,9 @@ export function EditorPanel() {
   const setFileName = useWorkspaceStore((s) => s.setFileName);
 
   const theme = useThemeStore((s) => s.theme);
+  const palette = useThemeStore((s) => s.palette);
+  // The store updates <html> before React re-renders, so the CSS variables are current here.
+  const editorTheme = useMemo(() => sakiEditorTheme(theme, palette), [theme, palette]);
   const editorRef = useRef<MonacoEditor | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [copied, setCopied] = useState(false);
@@ -145,7 +148,7 @@ export function EditorPanel() {
           </div>
         )}
         <Editor
-          theme={theme === 'light' ? SAKI_LIGHT_THEME : SAKI_DARK_THEME}
+          theme={editorTheme}
           language={language}
           value={code}
           onChange={(value) => setEditorCode(value ?? '')}

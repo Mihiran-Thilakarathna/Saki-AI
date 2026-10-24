@@ -3,10 +3,9 @@
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 /*
- * Saki theme, taken from the robot logo. Dark: navy surfaces, sky-blue (saki) and violet (iris) accents.
- * Light: white surfaces with the same accents. Utilities use the ink-* (surfaces and
- * text), saki-* (sky-blue accent) and iris-* (violet accent) names; the actual colors
- * come from the variables below, switched by <html data-theme="light|dark">.
+ * Saki theme. Utilities use the ink-* (surfaces and text), saki-* (main accent) and
+ * iris-* (second accent) names; the actual colors come from the variables below,
+ * switched by <html data-theme="light|dark"> and the chat theme <html data-palette="...">.
  */
 @theme inline {
   --font-sans: 'Inter', 'Noto Sans Sinhala', ui-sans-serif, system-ui, sans-serif;
@@ -60,34 +59,35 @@
   }
 }
 
+/* Classic (default): deep ink surfaces, teal (saki) and violet (iris) accents, coral -> cyan brand gradient. */
 :root,
 :root[data-theme='dark'] {
-  --ink-950: #060815;
-  --ink-900: #0a0d1c;
-  --ink-850: #0e1226;
-  --ink-800: #131830;
-  --ink-750: #182039;
-  --ink-700: #212a4a;
-  --ink-600: #2d385e;
+  --ink-950: #07090f;
+  --ink-900: #0b0f17;
+  --ink-850: #0f141e;
+  --ink-800: #131a26;
+  --ink-750: #182030;
+  --ink-700: #1f293b;
+  --ink-600: #2a3548;
   --ink-400: #6b7a90;
   --ink-300: #8b98a9;
   --ink-200: #b6c2d1;
   --ink-100: #e6edf3;
 
-  --saki-300: #7dd3fc;
-  --saki-400: #38bdf8;
-  --saki-500: #0ea5e9;
-  --saki-600: #0284c7;
+  --saki-300: #5eead4;
+  --saki-400: #2dd4bf;
+  --saki-500: #14b8a6;
+  --saki-600: #0d9488;
   --iris-400: #a78bfa;
   --iris-500: #8b5cf6;
   --iris-600: #7c3aed;
 
-
-  /* Brand gradient from the robot logo (cyan -> blue -> indigo -> violet). */
-  --grad-1: #38c8f0;
-  --grad-2: #3b82f6;
-  --grad-3: #6366f1;
-  --grad-4: #a855f7;
+  --grad-1: #ff5a6e;
+  --grad-2: #c13fa8;
+  --grad-3: #5b5cf0;
+  --grad-4: #19c9e0;
+  --logo-1: #2dd4bf;
+  --logo-2: #8b5cf6;
   --brand-gradient: linear-gradient(110deg, var(--grad-1) 0%, var(--grad-2) 34%, var(--grad-3) 68%, var(--grad-4) 100%);
 
   color-scheme: dark;
@@ -106,6 +106,51 @@
   --ink-200: #2b3645;
   --ink-100: #0f1724;
 
+  --saki-300: #0f766e;
+  --saki-400: #0d9488;
+  --saki-500: #14b8a6;
+  --saki-600: #0d9488;
+  --iris-400: #7c3aed;
+  --iris-500: #8b5cf6;
+  --iris-600: #6d28d9;
+
+  --grad-1: #f0435a;
+  --grad-2: #c13fa8;
+  --grad-3: #5b5cf0;
+  --grad-4: #0fb5cc;
+
+  color-scheme: light;
+}
+
+/*
+ * Other chat themes (Settings -> Appearance), chosen with <html data-palette="...">. Each one
+ * replaces the accents, the brand gradient and the logo colors, and tints the dark surfaces.
+ */
+/* Ocean: navy with sky-blue and violet (cyan -> blue -> indigo -> violet). */
+:root[data-palette='ocean']:not([data-theme='light']) {
+  --ink-950: #060815;
+  --ink-900: #0a0d1c;
+  --ink-850: #0e1226;
+  --ink-800: #131830;
+  --ink-750: #182039;
+  --ink-700: #212a4a;
+  --ink-600: #2d385e;
+  --saki-300: #7dd3fc;
+  --saki-400: #38bdf8;
+  --saki-500: #0ea5e9;
+  --saki-600: #0284c7;
+  --iris-400: #a78bfa;
+  --iris-500: #8b5cf6;
+  --iris-600: #7c3aed;
+  --grad-1: #38c8f0;
+  --grad-2: #3b82f6;
+  --grad-3: #6366f1;
+  --grad-4: #a855f7;
+  --logo-1: #38bdf8;
+  --logo-2: #8b5cf6;
+}
+
+:root[data-palette='ocean'][data-theme='light'] {
   --saki-300: #0369a1;
   --saki-400: #0284c7;
   --saki-500: #0ea5e9;
@@ -113,16 +158,132 @@
   --iris-400: #7c3aed;
   --iris-500: #8b5cf6;
   --iris-600: #6d28d9;
-
-
-  /* Brand gradient from the robot logo (cyan -> blue -> indigo -> violet). */
   --grad-1: #0ea5e9;
   --grad-2: #2563eb;
   --grad-3: #4f46e5;
   --grad-4: #9333ea;
-  --brand-gradient: linear-gradient(110deg, var(--grad-1) 0%, var(--grad-2) 34%, var(--grad-3) 68%, var(--grad-4) 100%);
+  --logo-1: #38bdf8;
+  --logo-2: #8b5cf6;
+}
 
-  color-scheme: light;
+/* Forest: deep green with emerald and sky accents (lime -> emerald -> teal -> sky). */
+:root[data-palette='forest']:not([data-theme='light']) {
+  --ink-950: #050d0a;
+  --ink-900: #08120e;
+  --ink-850: #0c1813;
+  --ink-800: #111f19;
+  --ink-750: #16271f;
+  --ink-700: #1d3329;
+  --ink-600: #284336;
+  --saki-300: #6ee7b7;
+  --saki-400: #34d399;
+  --saki-500: #10b981;
+  --saki-600: #059669;
+  --iris-400: #7dd3fc;
+  --iris-500: #38bdf8;
+  --iris-600: #0284c7;
+  --grad-1: #a3e635;
+  --grad-2: #34d399;
+  --grad-3: #14b8a6;
+  --grad-4: #0ea5e9;
+  --logo-1: #34d399;
+  --logo-2: #0ea5e9;
+}
+
+:root[data-palette='forest'][data-theme='light'] {
+  --saki-300: #047857;
+  --saki-400: #059669;
+  --saki-500: #10b981;
+  --saki-600: #059669;
+  --iris-400: #0369a1;
+  --iris-500: #0284c7;
+  --iris-600: #0369a1;
+  --grad-1: #65a30d;
+  --grad-2: #059669;
+  --grad-3: #0d9488;
+  --grad-4: #0284c7;
+  --logo-1: #34d399;
+  --logo-2: #0ea5e9;
+}
+
+/* Sunset: warm dark with orange and rose accents (amber -> orange -> rose -> fuchsia). */
+:root[data-palette='sunset']:not([data-theme='light']) {
+  --ink-950: #0f0806;
+  --ink-900: #150c09;
+  --ink-850: #1b110d;
+  --ink-800: #221612;
+  --ink-750: #2a1c17;
+  --ink-700: #36251e;
+  --ink-600: #47322a;
+  --saki-300: #fdba74;
+  --saki-400: #fb923c;
+  --saki-500: #f97316;
+  --saki-600: #ea580c;
+  --iris-400: #fb7185;
+  --iris-500: #f43f5e;
+  --iris-600: #e11d48;
+  --grad-1: #fbbf24;
+  --grad-2: #f97316;
+  --grad-3: #f43f5e;
+  --grad-4: #d946ef;
+  --logo-1: #fb923c;
+  --logo-2: #f43f5e;
+}
+
+:root[data-palette='sunset'][data-theme='light'] {
+  --saki-300: #c2410c;
+  --saki-400: #ea580c;
+  --saki-500: #f97316;
+  --saki-600: #ea580c;
+  --iris-400: #e11d48;
+  --iris-500: #f43f5e;
+  --iris-600: #be123c;
+  --grad-1: #f59e0b;
+  --grad-2: #ea580c;
+  --grad-3: #e11d48;
+  --grad-4: #c026d3;
+  --logo-1: #fb923c;
+  --logo-2: #f43f5e;
+}
+
+/* Lavender: plum dark with violet and pink accents (indigo -> violet -> orchid -> pink). */
+:root[data-palette='lavender']:not([data-theme='light']) {
+  --ink-950: #0a0712;
+  --ink-900: #0f0b19;
+  --ink-850: #140f21;
+  --ink-800: #1a142a;
+  --ink-750: #211934;
+  --ink-700: #2b2142;
+  --ink-600: #3a2d56;
+  --saki-300: #c4b5fd;
+  --saki-400: #a78bfa;
+  --saki-500: #8b5cf6;
+  --saki-600: #7c3aed;
+  --iris-400: #f9a8d4;
+  --iris-500: #f472b6;
+  --iris-600: #db2777;
+  --grad-1: #818cf8;
+  --grad-2: #a78bfa;
+  --grad-3: #e879f9;
+  --grad-4: #f472b6;
+  --logo-1: #a78bfa;
+  --logo-2: #f472b6;
+}
+
+:root[data-palette='lavender'][data-theme='light'] {
+  --saki-300: #6d28d9;
+  --saki-400: #7c3aed;
+  --saki-500: #8b5cf6;
+  --saki-600: #7c3aed;
+  --iris-400: #db2777;
+  --iris-500: #ec4899;
+  --iris-600: #be185d;
+  --grad-1: #6366f1;
+  --grad-2: #8b5cf6;
+  --grad-3: #d946ef;
+  --grad-4: #ec4899;
+  --logo-1: #a78bfa;
+  --logo-2: #f472b6;
 }
 
 @layer base {
@@ -158,7 +319,7 @@
 }
 
 @layer components {
-  /* ---- Saki thinking state: robot avatar in an orbiting brand-gradient arc ---- */
+  /* ---- Saki thinking state: Saki's logo in an orbiting brand-gradient arc ---- */
   .saki-orb {
     @apply relative h-12 w-12 shrink-0;
   }
@@ -189,8 +350,8 @@
     @apply absolute inset-[5px] overflow-hidden rounded-full bg-ink-950;
     animation: saki-breathe 2.4s ease-in-out infinite;
   }
-  .saki-orb-face img {
-    @apply h-full w-full object-cover;
+  .saki-orb-face svg {
+    @apply h-full w-full;
   }
   .saki-orb-badge {
     @apply absolute -right-1.5 -bottom-1.5 flex h-5 w-5 items-center justify-center rounded-full text-white ring-2 ring-ink-900;
@@ -314,11 +475,3 @@
   50% { transform: scale(1.12); }
 }
 
-/* Saki's logo glows in the brand colors while it speaks. */
-.saki-logo-speaking {
-  animation: saki-speak 1.6s ease-in-out infinite;
-}
-@keyframes saki-speak {
-  0%, 100% { filter: drop-shadow(0 0 2px color-mix(in oklab, var(--grad-3) 60%, transparent)); transform: scale(1); }
-  50% { filter: drop-shadow(0 0 9px color-mix(in oklab, var(--grad-2) 70%, transparent)); transform: scale(1.05); }
-}

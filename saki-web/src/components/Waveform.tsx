@@ -9,10 +9,15 @@ interface Props {
 }
 
 const BAR_COUNT = 36;
-const SAKI_GRADIENT: string[] = ['#38c8f0', '#3b82f6', '#6366f1', '#a855f7'];
+
+/** The current chat theme's brand gradient stops, read from the CSS variables. */
+function brandGradient(): string[] {
+  const style = getComputedStyle(document.documentElement);
+  return [1, 2, 3, 4].map((i) => style.getPropertyValue(`--grad-${i}`).trim() || '#888');
+}
 
 /** Scrolling live input-level bars drawn on a canvas (no React re-renders per frame). */
-export function Waveform({ active, getLevel, className, colors = SAKI_GRADIENT }: Props) {
+export function Waveform({ active, getLevel, className, colors }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -20,6 +25,7 @@ export function Waveform({ active, getLevel, className, colors = SAKI_GRADIENT }
     const context = canvas?.getContext('2d');
     if (!canvas || !context) return;
 
+    const stops = colors ?? brandGradient();
     const history = new Array<number>(BAR_COUNT).fill(0);
     let frame = 0;
     let raf = 0;
@@ -44,7 +50,7 @@ export function Waveform({ active, getLevel, className, colors = SAKI_GRADIENT }
       const gap = 3;
       const barWidth = Math.max(2, (width - gap * (BAR_COUNT - 1)) / BAR_COUNT);
       const gradient = context.createLinearGradient(0, 0, width, 0);
-      colors.forEach((color, i) => gradient.addColorStop(i / Math.max(1, colors.length - 1), color));
+      stops.forEach((color, i) => gradient.addColorStop(i / Math.max(1, stops.length - 1), color));
       context.fillStyle = gradient;
       history.forEach((level, i) => {
         const barHeight = Math.max(3, level * height);
