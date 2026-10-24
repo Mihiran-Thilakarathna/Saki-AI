@@ -60,8 +60,7 @@ export function AuthScreen() {
     <main className="flex min-h-full">
       {/* Brand panel */}
       <section className="relative hidden w-[46%] max-w-[640px] flex-col justify-between overflow-hidden bg-ink-800 p-12 text-ink-100 lg:flex dark:bg-[#0b0f17] dark:text-white">
-        <div className="pointer-events-none absolute -top-40 -right-40 h-80 w-80 rounded-full bg-[#2dd4bf]/20 blur-3xl dark:bg-[#2dd4bf]/15" />
-        <div className="pointer-events-none absolute -bottom-40 -left-20 h-96 w-96 rounded-full bg-[#8b5cf6]/15 blur-3xl dark:bg-[#8b5cf6]/25" />
+                <div className="bg-brand-mesh pointer-events-none absolute inset-x-0 -bottom-24 h-[70%] opacity-35 blur-3xl dark:opacity-45" />
 
         <div className="relative flex items-center gap-3">
           <SakiLogo size={40} />
@@ -72,7 +71,7 @@ export function AuthScreen() {
           <h1 className="text-4xl leading-tight font-semibold tracking-tight">
             Your voice coding
             <br />
-            assistant, in <span className="bg-gradient-to-r from-saki-300 to-iris-400 bg-clip-text text-transparent">Sinhala</span> and English.
+            assistant, in <span className="text-brand">Sinhala</span> and English.
           </h1>
           <p className="mt-4 max-w-md text-base text-ink-300 dark:text-white/70">
             Ask a question, hear a clear answer, and get complete code in your editor.

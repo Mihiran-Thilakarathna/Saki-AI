@@ -4,12 +4,12 @@ interface Props {
   active: boolean;
   getLevel: () => number;
   className?: string;
-  /** Bar colors left to right. */
-  colors?: [string, string];
+  /** Bar colors left to right (gradient stops). */
+  colors?: string[];
 }
 
 const BAR_COUNT = 36;
-const SAKI_GRADIENT: [string, string] = ['#2dd4bf', '#8b5cf6'];
+const SAKI_GRADIENT: string[] = ['#ff5a6e', '#c13fa8', '#5b5cf0', '#19c9e0'];
 
 /** Scrolling live input-level bars drawn on a canvas (no React re-renders per frame). */
 export function Waveform({ active, getLevel, className, colors = SAKI_GRADIENT }: Props) {
@@ -44,8 +44,7 @@ export function Waveform({ active, getLevel, className, colors = SAKI_GRADIENT }
       const gap = 3;
       const barWidth = Math.max(2, (width - gap * (BAR_COUNT - 1)) / BAR_COUNT);
       const gradient = context.createLinearGradient(0, 0, width, 0);
-      gradient.addColorStop(0, colors[0]);
-      gradient.addColorStop(1, colors[1]);
+      colors.forEach((color, i) => gradient.addColorStop(i / Math.max(1, colors.length - 1), color));
       context.fillStyle = gradient;
       history.forEach((level, i) => {
         const barHeight = Math.max(3, level * height);

@@ -117,7 +117,7 @@ export function Composer() {
                 <button
                   type="button"
                   onClick={voice.stopRecording}
-                  className="flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-br from-saki-400 to-iris-500 text-white hover:brightness-110 px-4 text-sm font-semibold transition"
+                  className="flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-brand text-white hover:brightness-110 px-4 text-sm font-semibold transition"
                   aria-label="Stop recording and send"
                 >
                   <ArrowUp className="h-4 w-4" /> Send
@@ -221,7 +221,7 @@ export function Composer() {
                   <button
                     type="submit"
                     disabled={!text.trim() || voice.thinking}
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-saki-400 to-iris-500 text-white hover:brightness-110 transition disabled:from-ink-700 disabled:to-ink-700 disabled:text-ink-400"
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-white hover:brightness-110 transition disabled:bg-none disabled:bg-ink-700 disabled:text-ink-400"
                     aria-label="Send to Saki"
                     title="Send (Enter)"
                   >
@@ -268,7 +268,7 @@ function SpeakingBar() {
         <button
           type="button"
           onClick={playing ? pause : resume}
-          className="flex h-8 items-center gap-1 rounded-full bg-gradient-to-br from-saki-400 to-iris-500 text-white hover:brightness-110 px-3 text-xs font-semibold"
+          className="flex h-8 items-center gap-1 rounded-full bg-brand text-white hover:brightness-110 px-3 text-xs font-semibold"
         >
           {playing ? (
             <>

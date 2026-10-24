@@ -49,7 +49,7 @@ export function AudioPlayer({ messageId }: { messageId: string }) {
       <button
         type="button"
         onClick={() => (playing ? pause() : play(messageId))}
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-saki-400 to-iris-500 text-white hover:brightness-110 transition"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-white hover:brightness-110 transition"
         aria-label={playing ? 'Pause Saki' : playback === 'paused' ? 'Resume Saki' : 'Play Saki’s answer'}
         title={playing ? 'Pause' : playback === 'paused' ? 'Resume' : 'Play'}
       >
@@ -79,7 +79,7 @@ export function AudioPlayer({ messageId }: { messageId: string }) {
           >
             <div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-ink-700" />
             <div
-              className="absolute top-1/2 left-0 h-1.5 -translate-y-1/2 rounded-full bg-gradient-to-r from-saki-400 to-iris-500"
+              className="absolute top-1/2 left-0 h-1.5 -translate-y-1/2 rounded-full bg-brand"
               style={{ width: `${progress * 100}%` }}
             />
             <div

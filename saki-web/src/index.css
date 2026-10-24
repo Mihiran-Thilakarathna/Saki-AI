@@ -82,6 +82,14 @@
   --iris-500: #8b5cf6;
   --iris-600: #7c3aed;
 
+
+  /* Brand gradient (coral -> magenta -> blue -> cyan). */
+  --grad-1: #ff5a6e;
+  --grad-2: #c13fa8;
+  --grad-3: #5b5cf0;
+  --grad-4: #19c9e0;
+  --brand-gradient: linear-gradient(110deg, var(--grad-1) 0%, var(--grad-2) 34%, var(--grad-3) 68%, var(--grad-4) 100%);
+
   color-scheme: dark;
 }
 
@@ -105,6 +113,14 @@
   --iris-400: #7c3aed;
   --iris-500: #8b5cf6;
   --iris-600: #6d28d9;
+
+
+  /* Brand gradient (coral -> magenta -> blue -> cyan). */
+  --grad-1: #f0435a;
+  --grad-2: #c13fa8;
+  --grad-3: #5b5cf0;
+  --grad-4: #0fb5cc;
+  --brand-gradient: linear-gradient(110deg, var(--grad-1) 0%, var(--grad-2) 34%, var(--grad-3) 68%, var(--grad-4) 100%);
 
   color-scheme: light;
 }
@@ -142,56 +158,75 @@
 }
 
 @layer components {
-  /* ---- Saki thinking animation: logo bars ripple inside an orbiting gradient ring ---- */
-  .saki-think-orb {
-    @apply relative flex h-9 w-9 shrink-0 items-center justify-center;
+  /* ---- Saki thinking state: robot avatar in an orbiting brand-gradient arc ---- */
+  .saki-orb {
+    @apply relative h-12 w-12 shrink-0;
   }
-  .saki-think-ring {
-    position: absolute;
-    inset: 0;
-    border-radius: 9999px;
-    background: conic-gradient(from 0deg, var(--saki-400), var(--iris-500), transparent 65%, var(--saki-400));
-    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
-    mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
-    animation: saki-orbit 1.4s linear infinite;
+  .saki-orb-halo {
+    @apply absolute -inset-2 rounded-full opacity-60 blur-md;
+    background: conic-gradient(from 0deg, var(--grad-1), var(--grad-2), var(--grad-3), var(--grad-4), var(--grad-1));
+    animation: saki-orbit 6s linear infinite, saki-halo 2.4s ease-in-out infinite;
   }
-  .saki-think-core {
-    @apply flex h-6 w-6 items-center justify-center gap-[2px] rounded-[7px] px-[3px];
-    background: linear-gradient(135deg, #2dd4bf, #8b5cf6);
-    box-shadow: 0 0 14px color-mix(in oklab, var(--saki-400) 45%, transparent);
+  .saki-orb-arc {
+    @apply absolute inset-0 rounded-full;
+    background: conic-gradient(from 0deg, transparent 0deg 40deg, var(--grad-1) 90deg, var(--grad-2) 150deg,
+      var(--grad-3) 210deg, var(--grad-4) 270deg, transparent 270deg);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
+    animation: saki-orbit 1.6s cubic-bezier(0.45, 0.1, 0.55, 0.9) infinite;
+  }
+  /* Rotates with the arc; the dot sits at the arc's bright end (270deg = 9 o'clock). */
+  .saki-orb-spinner {
+    @apply absolute inset-0;
+    animation: saki-orbit 1.6s cubic-bezier(0.45, 0.1, 0.55, 0.9) infinite;
+  }
+  .saki-orb-dot {
+    @apply absolute top-1/2 left-0 h-2 w-2 -translate-x-[3px] -translate-y-1/2 rounded-full;
+    background: var(--grad-4);
+    box-shadow: 0 0 8px 2px color-mix(in oklab, var(--grad-4) 75%, transparent);
+  }
+  .saki-orb-face {
+    @apply absolute inset-[5px] overflow-hidden rounded-full bg-ink-950;
     animation: saki-breathe 2.4s ease-in-out infinite;
   }
-  .saki-think-bar {
-    width: 2.5px;
-    border-radius: 9999px;
-    background: #0b0f17;
-    transform-origin: center;
-    animation: saki-ripple 1.1s ease-in-out infinite;
+  .saki-orb-face img {
+    @apply h-full w-full object-cover;
+  }
+  .saki-orb-badge {
+    @apply absolute -right-1.5 -bottom-1.5 flex h-5 w-5 items-center justify-center rounded-full text-white ring-2 ring-ink-900;
+    background-image: var(--brand-gradient);
+    animation: saki-badge 2.4s ease-in-out infinite;
+  }
+  .saki-wave-dot {
+    @apply h-1.5 w-1.5 rounded-full;
+    animation: saki-wave 1.3s ease-in-out infinite;
   }
   .saki-think-text {
-    background: linear-gradient(90deg, var(--ink-200) 0%, var(--saki-300) 35%, var(--iris-400) 55%, var(--ink-200) 90%);
+    background: linear-gradient(90deg, var(--ink-200) 0%, var(--grad-1) 30%, var(--grad-3) 55%, var(--grad-4) 70%, var(--ink-200) 92%);
     background-size: 220% 100%;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     animation: saki-sheen 2.6s linear infinite;
   }
-  .saki-think-dots {
-    @apply inline-flex items-end gap-[3px] self-center;
-  }
-  .saki-think-dots span {
-    @apply h-1 w-1 rounded-full bg-current;
-    animation: saki-dot 1.2s ease-in-out infinite;
-  }
-  .saki-think-dots span:nth-child(2) {
-    animation-delay: 0.15s;
-  }
-  .saki-think-dots span:nth-child(3) {
-    animation-delay: 0.3s;
-  }
 
-  .saki-gradient-text {
-    @apply bg-gradient-to-r from-saki-300 to-iris-400 bg-clip-text text-transparent;
+  .saki-gradient-text,
+  .text-brand {
+    background-image: var(--brand-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .bg-brand {
+    background-image: var(--brand-gradient);
+  }
+  /* Soft multi-color glow, like light behind frosted glass. */
+  .bg-brand-mesh {
+    background:
+      radial-gradient(38% 55% at 18% 38%, color-mix(in oklab, var(--grad-1) 55%, transparent), transparent 70%),
+      radial-gradient(34% 50% at 42% 62%, color-mix(in oklab, var(--grad-2) 50%, transparent), transparent 70%),
+      radial-gradient(36% 55% at 64% 35%, color-mix(in oklab, var(--grad-3) 55%, transparent), transparent 70%),
+      radial-gradient(34% 50% at 86% 60%, color-mix(in oklab, var(--grad-4) 50%, transparent), transparent 70%);
   }
   .icon-btn {
     @apply inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink-300 transition-colors hover:bg-ink-750 hover:text-ink-100 disabled:pointer-events-none disabled:opacity-40;
@@ -200,7 +235,8 @@
     @apply w-full rounded-xl border border-ink-700 bg-ink-850 px-3.5 py-2.5 text-sm text-ink-100 placeholder:text-ink-400 transition focus:border-saki-500 focus:ring-2 focus:ring-saki-500/20 focus:outline-none;
   }
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-saki-500 to-iris-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-saki-500/20 transition hover:brightness-110 disabled:opacity-50 disabled:shadow-none;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 disabled:opacity-50 disabled:shadow-none;
+    background-image: var(--brand-gradient);
   }
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2 rounded-xl border border-ink-700 bg-ink-850 px-3 py-2 text-sm font-medium text-ink-200 transition hover:border-ink-600 hover:bg-ink-800 hover:text-ink-100 disabled:opacity-50;
@@ -261,15 +297,28 @@
   0%, 100% { transform: scale(0.94); }
   50% { transform: scale(1.04); }
 }
-@keyframes saki-ripple {
-  0%, 100% { transform: scaleY(0.35); }
-  50% { transform: scaleY(1); }
-}
 @keyframes saki-sheen {
   from { background-position: 120% 0; }
   to { background-position: -120% 0; }
 }
-@keyframes saki-dot {
-  0%, 100% { opacity: 0.25; transform: translateY(0); }
-  50% { opacity: 1; transform: translateY(-3px); }
+@keyframes saki-wave {
+  0%, 100% { opacity: 0.35; transform: translateY(0) scale(0.85); }
+  45% { opacity: 1; transform: translateY(-4px) scale(1.15); }
+}
+@keyframes saki-halo {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.7; }
+}
+@keyframes saki-badge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+/* Saki's logo glows in the brand colors while it speaks. */
+.saki-logo-speaking {
+  animation: saki-speak 1.6s ease-in-out infinite;
+}
+@keyframes saki-speak {
+  0%, 100% { filter: drop-shadow(0 0 2px color-mix(in oklab, var(--grad-3) 60%, transparent)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 9px color-mix(in oklab, var(--grad-2) 70%, transparent)); transform: scale(1.05); }
 }
