@@ -4,6 +4,7 @@ import remarkGfm from 'remark-gfm';
 import { AlertCircle, Check, Copy, FileCode2, Mic, RotateCcw, Smartphone, X } from 'lucide-react';
 import { AudioPlayer } from '@/components/AudioPlayer';
 import { SakiLogo } from '@/components/SakiLogo';
+import { useTypewriter } from '@/hooks/useTypewriter';
 import { defaultFileName, normalizeLanguage } from '@/lib/languages';
 import { useAudioStore } from '@/store/audioStore';
 import { toast } from '@/store/toastStore';
@@ -116,6 +117,7 @@ function SakiMessage({ message, time, onOpenCode }: { message: ChatMessage; time
   const isSinhala = message.language === 'si-LK';
   const code = message.code;
   const hasCode = Boolean(code?.hasCode && code.code);
+  const { shown, done } = useTypewriter(message.id, message.text, Boolean(message.fresh));
 
   const openInEditor = () => {
     if (!code?.code) return;
@@ -153,35 +155,41 @@ function SakiMessage({ message, time, onOpenCode }: { message: ChatMessage; time
           )}
         </p>
         <p className={`text-[15px] leading-relaxed text-ink-100 ${isSinhala ? 'sinhala' : ''}`} lang={isSinhala ? 'si' : 'en'}>
-          {message.text}
+          {shown}
+          {!done && <span className="saki-caret" aria-hidden="true" />}
         </p>
 
-        {code?.explanationMarkdown && (
-          <div className={`saki-markdown mt-3 ${isSinhala ? 'sinhala' : ''}`}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{code.explanationMarkdown}</ReactMarkdown>
-          </div>
-        )}
+        {/* The rest appears once the answer has finished typing. */}
+        {done && (
+          <div className={message.fresh ? 'animate-fade-in' : undefined}>
+            {code?.explanationMarkdown && (
+              <div className={`saki-markdown mt-3 ${isSinhala ? 'sinhala' : ''}`}>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{code.explanationMarkdown}</ReactMarkdown>
+              </div>
+            )}
 
-        {/* Voice comes after the whole written answer, just above the code file. */}
-        <AudioPlayer messageId={message.id} />
+            {/* Voice comes after the whole written answer, just above the code file. */}
+            <AudioPlayer messageId={message.id} />
 
-        {hasCode && (
-          <div className="mt-3 flex items-center gap-3 rounded-xl border border-ink-700 bg-ink-850 px-3 py-2.5">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-saki-500/15">
-              <FileCode2 className="h-4 w-4 text-saki-400" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate font-mono text-sm text-ink-100">{code!.fileName ?? 'snippet'}</span>
-              <span className="block text-[11px] text-ink-400">
-                {code!.code!.split('\n').length} lines · added to the editor
-              </span>
-            </span>
-            <button type="button" className="icon-btn h-8 w-8" onClick={copyCode} aria-label="Copy code" title="Copy code">
-              {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
-            </button>
-            <button type="button" className="btn-secondary px-2.5 py-1.5 text-xs" onClick={openInEditor}>
-              Open in editor
-            </button>
+            {hasCode && (
+              <div className="mt-3 flex items-center gap-3 rounded-xl border border-ink-700 bg-ink-850 px-3 py-2.5">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-saki-500/15">
+                  <FileCode2 className="h-4 w-4 text-saki-400" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-mono text-sm text-ink-100">{code!.fileName ?? 'snippet'}</span>
+                  <span className="block text-[11px] text-ink-400">
+                    {code!.code!.split('\n').length} lines · added to the editor
+                  </span>
+                </span>
+                <button type="button" className="icon-btn h-8 w-8" onClick={copyCode} aria-label="Copy code" title="Copy code">
+                  {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                </button>
+                <button type="button" className="btn-secondary px-2.5 py-1.5 text-xs" onClick={openInEditor}>
+                  Open in editor
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

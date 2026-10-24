@@ -371,6 +371,13 @@
     animation: saki-sheen 2.6s linear infinite;
   }
 
+  /* Blinking cursor while Saki types an answer. */
+  .saki-caret {
+    @apply ml-0.5 inline-block h-[1.05em] w-[2px] translate-y-[3px] rounded-full;
+    background: var(--saki-400);
+    animation: saki-caret 0.9s steps(2, start) infinite;
+  }
+
   .saki-gradient-text,
   .text-brand {
     background-image: var(--brand-gradient);
@@ -451,6 +458,9 @@
 }
 
 /* Keyframes for the Saki thinking animation (used by plain CSS classes, so kept outside @theme). */
+@keyframes saki-caret {
+  to { visibility: hidden; }
+}
 @keyframes saki-orbit {
   to { transform: rotate(360deg); }
 }

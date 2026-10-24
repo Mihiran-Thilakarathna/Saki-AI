@@ -29,6 +29,8 @@ export interface ChatMessage {
   error?: string;
   /** Voice question: the user's own recording, so they can play it back and check the mic. */
   voice?: { url: string; durationMs: number };
+  /** Answer that just arrived (not loaded from history): it types itself out. */
+  fresh?: boolean;
 }
 
 type PendingQuery = { kind: 'text'; query: string } | { kind: 'voice'; audio: Blob; durationMs: number };
@@ -164,6 +166,7 @@ function responseToChat(response: SakiResponse, remote: boolean): ChatMessage[] 
       code: response.codePayload,
       createdAt: response.timestamp,
       remote,
+      fresh: true,
     },
   ];
 }
@@ -334,6 +337,7 @@ export const useWorkspaceStore = create<WorkspaceState>()((set, get) => {
         if (generation !== selectGeneration) return;
         const language = normalizeLanguage(session.activeLanguage ?? 'java');
         const lastWithFile = [...history].reverse().find((m) => m.senderRole === 'SAKI' && m.fileName);
+        useAudioStore.getState().registerHistory(id, history);
         set({
           messages: historyToChat(history),
           editorCode: session.currentCodeContext ?? '',
