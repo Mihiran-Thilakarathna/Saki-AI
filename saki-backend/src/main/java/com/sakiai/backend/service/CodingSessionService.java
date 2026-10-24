@@ -3,6 +3,7 @@ package com.sakiai.backend.service;
 import com.sakiai.backend.config.SakiProperties;
 import com.sakiai.backend.domain.CodingSession;
 import com.sakiai.backend.domain.ConversationMessage;
+import com.sakiai.backend.domain.MessageAudio;
 import com.sakiai.backend.domain.SenderRole;
 import com.sakiai.backend.domain.User;
 import com.sakiai.backend.dto.saki.CodePayloadDto;
@@ -14,6 +15,7 @@ import com.sakiai.backend.dto.session.UpdateSessionRequestDto;
 import com.sakiai.backend.exception.ResourceNotFoundException;
 import com.sakiai.backend.repository.CodingSessionRepository;
 import com.sakiai.backend.repository.ConversationMessageRepository;
+import com.sakiai.backend.repository.MessageAudioRepository;
 import com.sakiai.backend.repository.UserRepository;
 import com.sakiai.backend.service.ai.AiReply;
 import com.sakiai.backend.service.ai.HistoryTurn;
@@ -26,6 +28,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -36,6 +40,7 @@ public class CodingSessionService {
 
     private final CodingSessionRepository sessionRepository;
     private final ConversationMessageRepository messageRepository;
+    private final MessageAudioRepository audioRepository;
     private final UserRepository userRepository;
     private final SakiProperties properties;
 
@@ -100,8 +105,11 @@ public class CodingSessionService {
     @Transactional(readOnly = true)
     public List<ConversationMessageDto> messages(UUID userId, UUID sessionId) {
         requireOwned(userId, sessionId);
-        return messageRepository.findBySession_IdOrderByCreatedAtAsc(sessionId).stream()
-                .map(message -> ConversationMessageDto.from(message, sessionId))
+        List<ConversationMessage> messages = messageRepository.findBySession_IdOrderByCreatedAtAsc(sessionId);
+        Set<UUID> withAudio = messages.isEmpty() ? Set.of()
+                : audioRepository.findStoredIds(messages.stream().map(ConversationMessage::getId).toList());
+        return messages.stream()
+                .map(message -> ConversationMessageDto.from(message, sessionId, withAudio.contains(message.getId())))
                 .toList();
     }
 
@@ -188,6 +196,28 @@ public class CodingSessionService {
         }
         session.setUpdatedAt(answeredAt);
         return sakiMessage;
+    }
+
+    /** One of Saki's answers in an owned session (404 for anything else). */
+    @Transactional(readOnly = true)
+    public ConversationMessage sakiMessage(UUID userId, UUID sessionId, UUID messageId) {
+        requireOwned(userId, sessionId);
+        return messageRepository.findByIdAndSession_Id(messageId, sessionId)
+                .filter(message -> message.getSenderRole() == SenderRole.SAKI)
+                .orElseThrow(() -> new ResourceNotFoundException("Message not found"));
+    }
+
+    /** The stored voice of an answer in an owned session, if there is one. */
+    @Transactional(readOnly = true)
+    public Optional<MessageAudio> audio(UUID userId, UUID sessionId, UUID messageId) {
+        sakiMessage(userId, sessionId, messageId);
+        return audioRepository.findById(messageId);
+    }
+
+    /** Keeps the voice of an answer so it can be replayed later (replaces an older one). */
+    @Transactional
+    public void saveAudio(UUID messageId, byte[] audio, String mimeType) {
+        audioRepository.save(new MessageAudio(messageId, mimeType, audio, null));
     }
 
     // ---------------------------------------------------------------- helpers

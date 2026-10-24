@@ -5,10 +5,13 @@ import com.sakiai.backend.dto.session.ConversationMessageDto;
 import com.sakiai.backend.dto.session.CreateSessionRequestDto;
 import com.sakiai.backend.dto.session.SessionSummaryDto;
 import com.sakiai.backend.dto.session.UpdateSessionRequestDto;
+import com.sakiai.backend.exception.ResourceNotFoundException;
 import com.sakiai.backend.security.SakiUserPrincipal;
 import com.sakiai.backend.service.CodingSessionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.CacheControl;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
@@ -70,6 +74,19 @@ public class SessionController {
                                        @PathVariable UUID sessionId) {
         sessionService.delete(principal.id(), sessionId);
         return ResponseEntity.noContent().build();
+    }
+
+    /** The stored voice (MP3) of one of Saki's answers; 404 when it has none. */
+    @GetMapping("/{sessionId}/messages/{messageId}/audio")
+    public ResponseEntity<byte[]> audio(@AuthenticationPrincipal SakiUserPrincipal principal,
+                                        @PathVariable UUID sessionId,
+                                        @PathVariable UUID messageId) {
+        return sessionService.audio(principal.id(), sessionId, messageId)
+                .map(audio -> ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(audio.getMimeType()))
+                        .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate())
+                        .body(audio.getAudio()))
+                .orElseThrow(() -> new ResourceNotFoundException("This answer has no saved voice"));
     }
 
     @GetMapping("/{sessionId}/messages")

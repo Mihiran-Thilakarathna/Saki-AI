@@ -28,7 +28,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -100,6 +103,30 @@ class AsyncAudioIntegrationTest {
         assertThat(audio.getValue().audioBase64()).isEqualTo("QUJD");
         assertThat(audio.getValue().audioMimeType()).isEqualTo("audio/mpeg");
         assertThat(audio.getValue().originClientId()).isEqualTo("web-1");
+
+        // The voice is saved with the chat, so it can be played again after a reload.
+        String messageId = mapper.readTree(body).path("messageId").asText();
+        mvc.perform(get("/api/v1/sessions/{id}/messages", sessionId).header("Authorization", bearer))
+                .andExpect(jsonPath("$[0].hasAudio").value(false))
+                .andExpect(jsonPath("$[1].hasAudio").value(true));
+        mvc.perform(get("/api/v1/sessions/{s}/messages/{m}/audio", sessionId, messageId)
+                        .header("Authorization", bearer))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("audio/mpeg"))
+                .andExpect(content().bytes("ABC".getBytes()));
+        // Asking for the voice again returns the saved one without calling text-to-speech.
+        mvc.perform(post("/api/v1/saki/sessions/{s}/messages/{m}/voice", sessionId, messageId)
+                        .header("Authorization", bearer))
+                .andExpect(status().isOk())
+                .andExpect(content().bytes("ABC".getBytes()));
+        verify(ttsService, times(1)).synthesize(anyString(), anyString());
+        // Another user cannot read it.
+        String other = "Bearer " + mapper.readTree(mvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"fullName\":\"Other\",\"email\":\"other@example.lk\",\"password\":\"supersecret1\"}"))
+                .andReturn().getResponse().getContentAsString()).path("accessToken").asText();
+        mvc.perform(get("/api/v1/sessions/{s}/messages/{m}/audio", sessionId, messageId).header("Authorization", other))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -125,5 +152,15 @@ class AsyncAudioIntegrationTest {
         ArgumentCaptor<SakiAudioDto> audio = ArgumentCaptor.forClass(SakiAudioDto.class);
         verify(broadcaster, timeout(5000)).publishAudio(audio.capture());
         assertThat(audio.getValue().audioBase64()).isNull();
+
+        // No saved voice; making one now fails clearly while text-to-speech is down.
+        String messageId = audio.getValue().messageId().toString();
+        mvc.perform(get("/api/v1/sessions/{s}/messages/{m}/audio", sessionId, messageId)
+                        .header("Authorization", bearer))
+                .andExpect(status().isNotFound());
+        mvc.perform(post("/api/v1/saki/sessions/{s}/messages/{m}/voice", sessionId, messageId)
+                        .header("Authorization", bearer))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.errorCode").value("VOICE_UNAVAILABLE"));
     }
 }

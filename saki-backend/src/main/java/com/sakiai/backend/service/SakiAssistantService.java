@@ -2,6 +2,7 @@ package com.sakiai.backend.service;
 
 import com.sakiai.backend.config.SakiProperties;
 import com.sakiai.backend.domain.ConversationMessage;
+import com.sakiai.backend.domain.MessageAudio;
 import com.sakiai.backend.dto.saki.CodePayloadDto;
 import com.sakiai.backend.dto.saki.SakiAudioDto;
 import com.sakiai.backend.dto.saki.SakiResponseDto;
@@ -22,12 +23,14 @@ import com.sakiai.backend.service.tts.SynthesizedSpeech;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -144,6 +147,8 @@ public class SakiAssistantService {
                     .originClientId(originClientId)
                     .build();
 
+            speech.ifPresent(s -> storeVoice(saved.getId(), s));
+
             // 5. Real-time sync to every paired device.
             broadcaster.publishResponse(response);
             broadcaster.publishEvent(SessionEventDto.of(SessionEventDto.Type.COMPLETED, sessionId, mode,
@@ -173,6 +178,7 @@ public class SakiAssistantService {
             } catch (RuntimeException ex) {
                 log.warn("Background TTS failed for message {}: {}", response.messageId(), ex.getMessage());
             }
+            speech.ifPresent(s -> storeVoice(response.messageId(), s));
             // Always publish, even without audio, so clients stop waiting and can fall back.
             broadcaster.publishAudio(new SakiAudioDto(response.sessionId(), response.messageId(),
                     speech.map(SynthesizedSpeech::audioBase64).orElse(null),
@@ -182,6 +188,41 @@ public class SakiAssistantService {
                     Duration.ofNanos(System.nanoTime() - started).toMillis(),
                     speech.map(SynthesizedSpeech::providerId).orElse("none"));
         });
+    }
+
+    /**
+     * The voice of one of Saki's earlier answers: the stored one, or, when there is none yet
+     * (the voice failed at the time or the answer predates stored voices), a new one.
+     */
+    public MessageAudio voiceFor(UUID userId, UUID sessionId, UUID messageId) {
+        Optional<MessageAudio> stored = sessionService.audio(userId, sessionId, messageId);
+        if (stored.isPresent()) {
+            return stored.get();
+        }
+        ConversationMessage message = sessionService.sakiMessage(userId, sessionId, messageId);
+        String text = SpokenTextSanitizer.forSpeech(message.getSpokenResponse(), message.getExplanationMarkdown());
+        SynthesizedSpeech speech;
+        try {
+            speech = ttsService.synthesize(text, message.getDetectedLanguage()).orElse(null);
+        } catch (RuntimeException ex) {
+            log.warn("On-demand TTS failed for message {}: {}", messageId, ex.getMessage());
+            speech = null;
+        }
+        if (speech == null) {
+            throw new ApiException(HttpStatus.SERVICE_UNAVAILABLE, "VOICE_UNAVAILABLE",
+                    "Saki's voice isn't available right now. Please try again a little later.");
+        }
+        storeVoice(messageId, speech);
+        return new MessageAudio(messageId, speech.mimeType(), Base64.getDecoder().decode(speech.audioBase64()), null);
+    }
+
+    /** Best effort: a voice that cannot be stored is still delivered this time. */
+    private void storeVoice(UUID messageId, SynthesizedSpeech speech) {
+        try {
+            sessionService.saveAudio(messageId, Base64.getDecoder().decode(speech.audioBase64()), speech.mimeType());
+        } catch (RuntimeException ex) {
+            log.warn("Could not store the voice of message {}: {}", messageId, ex.getMessage());
+        }
     }
 
     /** What Saki says aloud: the answer plus its explanation points, never the code itself. */

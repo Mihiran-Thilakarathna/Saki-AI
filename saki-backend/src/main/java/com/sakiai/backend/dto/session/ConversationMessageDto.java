@@ -17,12 +17,14 @@ public record ConversationMessageDto(
         String programmingLanguage,
         String fileName,
         String explanationMarkdown,
-        Instant createdAt
+        Instant createdAt,
+        /* Saki's voice for this answer is stored and can be fetched from .../messages/{id}/audio. */
+        boolean hasAudio
 ) {
-    public static ConversationMessageDto from(ConversationMessage message, UUID sessionId) {
+    public static ConversationMessageDto from(ConversationMessage message, UUID sessionId, boolean hasAudio) {
         return new ConversationMessageDto(message.getId(), sessionId, message.getSenderRole(),
                 message.getUserTranscript(), message.getDetectedLanguage(), message.getSpokenResponse(),
                 message.getCodeSnippet(), message.getProgrammingLanguage(), message.getFileName(),
-                message.getExplanationMarkdown(), message.getCreatedAt());
+                message.getExplanationMarkdown(), message.getCreatedAt(), hasAudio);
     }
 }

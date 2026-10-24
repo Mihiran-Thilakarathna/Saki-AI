@@ -32,6 +32,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -143,9 +144,20 @@ class PostgresSchemaIntegrationTest {
                 .andExpect(jsonPath("$.currentCodeContext").value("public class JwtAuthenticationFilter {}"))
                 .andExpect(jsonPath("$.title").value("Spring Boot වල JWT auth හදන්නේ කොහොමද?"));
 
-        // Deleting a session cascades to its messages (ON DELETE CASCADE).
+        // A saved voice is served back and listed on its message.
+        String answerId = messages.get(1).path("id").asText();
+        jdbc.update("INSERT INTO message_audio (message_id, mime_type, audio) VALUES (?::uuid, 'audio/mpeg', ?)",
+                answerId, new byte[] {1, 2, 3});
+        mvc.perform(get("/api/v1/sessions/{s}/messages/{m}/audio", sessionId, answerId).header("Authorization", bearer))
+                .andExpect(status().isOk())
+                .andExpect(content().bytes(new byte[] {1, 2, 3}));
+        mvc.perform(get("/api/v1/sessions/{id}/messages", sessionId).header("Authorization", bearer))
+                .andExpect(jsonPath("$[1].hasAudio").value(true));
+
+        // Deleting a session cascades to its messages and their voices (ON DELETE CASCADE).
         mvc.perform(delete("/api/v1/sessions/{id}", sessionId).header("Authorization", bearer))
                 .andExpect(status().isNoContent());
         assertThat(jdbc.queryForObject("SELECT count(*) FROM conversation_messages", Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM message_audio", Integer.class)).isZero();
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ConversationMessageRepository extends JpaRepository<ConversationMessage, UUID> {
@@ -15,4 +16,6 @@ public interface ConversationMessageRepository extends JpaRepository<Conversatio
     List<ConversationMessage> findBySession_IdOrderByCreatedAtDesc(UUID sessionId, Pageable pageable);
 
     boolean existsBySession_Id(UUID sessionId);
+
+    Optional<ConversationMessage> findByIdAndSession_Id(UUID id, UUID sessionId);
 }

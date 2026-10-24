@@ -1,5 +1,6 @@
 package com.sakiai.backend.controller;
 
+import com.sakiai.backend.domain.MessageAudio;
 import com.sakiai.backend.dto.saki.SakiResponseDto;
 import com.sakiai.backend.dto.saki.TextQueryRequestDto;
 import com.sakiai.backend.security.SakiUserPrincipal;
@@ -7,8 +8,11 @@ import com.sakiai.backend.service.SakiAssistantService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,6 +52,21 @@ public class SakiAssistantController {
                                       @Size(max = 64) String clientId) {
         return assistantService.handleVoiceQuery(principal.id(), sessionId, audioFile,
                 currentEditorCode, programmingLanguage, clientId);
+    }
+
+    /**
+     * Saki's voice for an earlier answer: the saved one, or a newly made one when it has none
+     * (counts toward the AI limits, since it may call text-to-speech).
+     */
+    @PostMapping("/sessions/{sessionId}/messages/{messageId}/voice")
+    public ResponseEntity<byte[]> voice(@AuthenticationPrincipal SakiUserPrincipal principal,
+                                        @PathVariable UUID sessionId,
+                                        @PathVariable UUID messageId) {
+        MessageAudio audio = assistantService.voiceFor(principal.id(), sessionId, messageId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(audio.getMimeType()))
+                .cacheControl(CacheControl.noStore())
+                .body(audio.getAudio());
     }
 
     /** Typed query; still returns spoken TTS audio and code, exactly like a voice query. */
