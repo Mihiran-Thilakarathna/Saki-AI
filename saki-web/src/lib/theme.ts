@@ -9,11 +9,11 @@ export type Theme = 'dark' | 'light';
 export const PALETTES = [
   {
     id: 'classic',
-    name: 'Classic',
-    description: 'Teal and violet with a coral-to-cyan glow',
-    swatch: ['#ff5a6e', '#c13fa8', '#5b5cf0', '#19c9e0'],
-    accent: '#2dd4bf',
-    surface: '#0b0f17',
+    name: 'Saki',
+    description: 'Green, cyan and blue from Saki’s logo',
+    swatch: ['#34e27a', '#13c8f5', '#2f6bff', '#6a4cff'],
+    accent: '#22c8f5',
+    surface: '#080c1d',
   },
   {
     id: 'ocean',

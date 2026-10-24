@@ -223,7 +223,7 @@ function AppearanceSection() {
       <div className="mt-8">
         <SectionTitle
           title="Chat theme"
-          description="Colors for the whole app: buttons, highlights, the logo, the editor and Saki's animations."
+          description="Colors for the whole app: buttons, highlights, the editor and Saki's animations."
         />
         <div className="grid gap-3 sm:grid-cols-2">
           {PALETTES.map((p) => {

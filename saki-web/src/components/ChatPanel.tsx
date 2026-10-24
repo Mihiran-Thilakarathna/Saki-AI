@@ -51,7 +51,7 @@ export function ChatPanel({ onShowEditor }: { onShowEditor: () => void }) {
               <div className="relative">
                 <div className="bg-brand-mesh pointer-events-none absolute -inset-16 opacity-60 blur-2xl dark:opacity-70" />
                 <div className="relative">
-                  <SakiLogo size={76} />
+                  <SakiLogo size={96} />
                 </div>
               </div>
               <h2 className="mt-5 text-2xl font-semibold tracking-tight">How can I help with your code?</h2>
