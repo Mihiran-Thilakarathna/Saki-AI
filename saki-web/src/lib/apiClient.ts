@@ -33,11 +33,13 @@ interface RequestOptions {
   body?: BodyInit;
   signal?: AbortSignal;
   auth?: boolean;
+  /** 'blob' for binary responses such as Saki's voice (MP3). */
+  responseType?: 'json' | 'blob';
 }
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { method = 'GET', json, body, signal, auth = true } = options;
-  const headers: Record<string, string> = { Accept: 'application/json' };
+  const { method = 'GET', json, body, signal, auth = true, responseType = 'json' } = options;
+  const headers: Record<string, string> = { Accept: responseType === 'blob' ? '*/*' : 'application/json' };
   if (json !== undefined) headers['Content-Type'] = 'application/json';
   const token = auth ? tokenProvider() : null;
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -56,6 +58,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   }
 
   if (response.status === 204) return undefined as T;
+  if (response.ok && responseType === 'blob') return (await response.blob()) as T;
 
   const text = await response.text();
   const data = text ? safeJson(text) : null;

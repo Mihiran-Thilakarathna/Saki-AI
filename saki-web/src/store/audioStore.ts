@@ -1,6 +1,8 @@
 import { create } from 'zustand';
+import { assistantApi, sessionApi } from '@/api/sakiApi';
+import { errorMessage } from '@/lib/apiClient';
 import { toast } from '@/store/toastStore';
-import type { SakiAudio, SakiLanguage, SakiResponse } from '@/types/api';
+import type { ConversationMessage, SakiAudio, SakiLanguage, SakiResponse } from '@/types/api';
 
 interface CachedClip {
   src: string;
@@ -8,6 +10,10 @@ interface CachedClip {
   language: SakiLanguage;
   /** Voice still being synthesized on the server; play it as soon as it arrives. */
   awaitingAudio?: boolean;
+  /** Chat the answer belongs to, for loading its voice from the server. */
+  sessionId?: string;
+  /** The server has this answer's voice saved. */
+  stored?: boolean;
 }
 
 export type PlaybackState = 'idle' | 'playing' | 'paused';
@@ -37,6 +43,8 @@ interface AudioState {
   playResponse: (response: SakiResponse) => void;
   /** Voice that arrived after its answer (async TTS). */
   receiveAudio: (audio: SakiAudio) => void;
+  /** Makes the answers of a chat loaded from history playable (their voices load on demand). */
+  registerHistory: (sessionId: string, messages: ConversationMessage[]) => void;
   play: (messageId?: string) => void;
   replay: (messageId?: string) => void;
   pause: () => void;
@@ -46,13 +54,15 @@ interface AudioState {
   toggleMute: () => void;
   setPlaybackRate: (rate: number) => void;
   /** Saves the voice of one answer as an MP3 file. */
-  download: (messageId: string) => void;
+  download: (messageId: string) => Promise<void>;
 }
 
 const MUTE_KEY = 'saki-muted';
 const RATE_KEY = 'saki-playback-rate';
 export const PLAYBACK_RATES = [0.75, 1, 1.25, 1.5, 1.75, 2] as const;
 const clips = new Map<string, CachedClip>();
+/** Voices being fetched (or made) on the server, so a double click loads once. */
+const loading = new Map<string, Promise<boolean>>();
 /** Audio that arrived before its answer was shown (rare WebSocket/HTTP race). */
 const earlyAudio = new Map<string, SakiAudio>();
 let audioElement: HTMLAudioElement | null = null;
@@ -147,7 +157,10 @@ export const useAudioStore = create<AudioState>()((set, get) => {
     const voice = window.speechSynthesis
       .getVoices()
       .find((v) => v.lang.replace('_', '-').startsWith(clip.language.slice(0, 2)));
-    if (!voice) return; // No local Sinhala voice is common; the text is still shown in chat.
+    if (!voice) {
+      toast.error('Saki’s voice isn’t available for this answer right now.');
+      return;
+    }
     const utterance = new SpeechSynthesisUtterance(clip.text);
     utterance.voice = voice;
     utterance.lang = clip.language;
@@ -160,6 +173,36 @@ export const useAudioStore = create<AudioState>()((set, get) => {
     window.speechSynthesis.speak(utterance);
   };
 
+  /** Fetches the saved voice, or asks the server to make one; false (with a message) when it can't. */
+  const loadVoice = (messageId: string): Promise<boolean> => {
+    const clip = clips.get(messageId);
+    if (!clip) return Promise.resolve(false);
+    if (clip.src) return Promise.resolve(true);
+    if (!clip.sessionId) return Promise.resolve(false);
+    const pending = loading.get(messageId);
+    if (pending) return pending;
+
+    const sessionId = clip.sessionId;
+    set({ preparing: { ...get().preparing, [messageId]: true } });
+    const request = (clip.stored ? sessionApi.audio(sessionId, messageId) : assistantApi.voice(sessionId, messageId))
+      .then((blob) => {
+        clip.src = URL.createObjectURL(blob);
+        clip.stored = true;
+        set({ downloadable: { ...get().downloadable, [messageId]: true } });
+        return true;
+      })
+      .catch((error: unknown) => {
+        toast.error(errorMessage(error));
+        return false;
+      })
+      .finally(() => {
+        loading.delete(messageId);
+        set({ preparing: without(get().preparing, messageId) });
+      });
+    loading.set(messageId, request);
+    return request;
+  };
+
   const playClip = (messageId: string) => {
     const clip = clips.get(messageId);
     if (!clip) return;
@@ -169,7 +212,14 @@ export const useAudioStore = create<AudioState>()((set, get) => {
     if (get().muted) return;
 
     if (!clip.src) {
-      speakWithBrowser(clip, messageId);
+      if (clip.sessionId) {
+        // Earlier answer: load its voice first, then play it unless something else started meanwhile.
+        void loadVoice(messageId).then((ok) => {
+          if (ok && get().lastMessageId === messageId && get().playback === 'idle') playClip(messageId);
+        });
+      } else {
+        speakWithBrowser(clip, messageId);
+      }
       return;
     }
     const element = ensureElement();
@@ -204,7 +254,13 @@ export const useAudioStore = create<AudioState>()((set, get) => {
 
     playResponse: (response) => {
       const src = response.audioBase64 ? toSrc(response.audioBase64, response.audioMimeType) : '';
-      const clip: CachedClip = { src, text: speechText(response), language: response.detectedLanguage };
+      const clip: CachedClip = {
+        src,
+        text: speechText(response),
+        language: response.detectedLanguage,
+        sessionId: response.sessionId,
+        stored: Boolean(src),
+      };
       clips.set(response.messageId, clip);
       set({ replayable: { ...get().replayable, [response.messageId]: true } });
 
@@ -230,15 +286,39 @@ export const useAudioStore = create<AudioState>()((set, get) => {
         if (earlyAudio.size > 20) earlyAudio.delete(earlyAudio.keys().next().value!);
         return;
       }
-      if (audio.audioBase64) clip.src = toSrc(audio.audioBase64, audio.audioMimeType);
+      if (audio.audioBase64) {
+        clip.src = toSrc(audio.audioBase64, audio.audioMimeType);
+        clip.stored = true;
+      }
       set({
         preparing: without(get().preparing, audio.messageId),
         ...(clip.src ? { downloadable: { ...get().downloadable, [audio.messageId]: true } } : {}),
       });
       if (!clip.awaitingAudio) return;
       clip.awaitingAudio = false;
-      // Only speak if nothing newer has started meanwhile.
-      if (get().lastMessageId === audio.messageId && get().playback === 'idle') playClip(audio.messageId);
+      // Only speak if a voice arrived and nothing newer has started meanwhile. When the voice
+      // failed, pressing Play later asks the server to try again.
+      if (clip.src && get().lastMessageId === audio.messageId && get().playback === 'idle') playClip(audio.messageId);
+    },
+
+    registerHistory: (sessionId, messages) => {
+      const replayable = { ...get().replayable };
+      const downloadable = { ...get().downloadable };
+      for (const m of messages) {
+        if (m.senderRole !== 'SAKI' || !m.spokenResponse) continue;
+        if (!clips.has(m.id)) {
+          clips.set(m.id, {
+            src: '',
+            text: m.spokenResponse,
+            language: m.detectedLanguage ?? 'si-LK',
+            sessionId,
+            stored: m.hasAudio,
+          });
+        }
+        replayable[m.id] = true;
+        if (m.hasAudio) downloadable[m.id] = true;
+      }
+      set({ replayable, downloadable });
     },
 
     play: (messageId) => {
@@ -308,7 +388,8 @@ export const useAudioStore = create<AudioState>()((set, get) => {
       set({ playbackRate });
     },
 
-    download: (messageId) => {
+    download: async (messageId) => {
+      if (!(await loadVoice(messageId))) return;
       const clip = clips.get(messageId);
       if (!clip?.src) return;
       const link = document.createElement('a');

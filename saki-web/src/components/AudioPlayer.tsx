@@ -125,7 +125,7 @@ export function AudioPlayer({ messageId }: { messageId: string }) {
       {downloadable && (
         <button
           type="button"
-          onClick={() => download(messageId)}
+          onClick={() => void download(messageId)}
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink-300 transition hover:bg-ink-750 hover:text-ink-100"
           aria-label="Download Saki’s voice as MP3"
           title="Download voice (MP3)"

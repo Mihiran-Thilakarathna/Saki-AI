@@ -36,6 +36,9 @@ export const sessionApi = {
   /** Deletes every chat of the signed-in user. */
   removeAll: () => apiRequest<void>('/api/v1/sessions', { method: 'DELETE' }),
   messages: (id: string) => apiRequest<ConversationMessage[]>(`/api/v1/sessions/${id}/messages`),
+  /** The saved voice (MP3) of one of Saki's answers. */
+  audio: (sessionId: string, messageId: string) =>
+    apiRequest<Blob>(`/api/v1/sessions/${sessionId}/messages/${messageId}/audio`, { responseType: 'blob' }),
 };
 
 export interface VoiceQueryInput {
@@ -58,6 +61,12 @@ export const assistantApi = {
   },
   textQuery: (request: TextQueryRequest) =>
     apiRequest<SakiResponse>('/api/v1/saki/text-query', { method: 'POST', json: request }),
+  /** Voice for an earlier answer: the saved one, or a newly made one when it has none. */
+  voice: (sessionId: string, messageId: string) =>
+    apiRequest<Blob>(`/api/v1/saki/sessions/${sessionId}/messages/${messageId}/voice`, {
+      method: 'POST',
+      responseType: 'blob',
+    }),
 };
 
 function extensionFor(mimeType: string): string {

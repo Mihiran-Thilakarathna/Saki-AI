@@ -311,8 +311,8 @@ function VoiceSection() {
           <Download className="h-4 w-4 text-saki-400" /> Download a voice answer
         </p>
         <p className="mt-1 text-xs leading-relaxed text-ink-400">
-          Press the download button on an answer’s voice player to save it as an MP3. Voices are kept for the
-          answers you get in this visit; older chats keep their text and code.
+          Press the download button on an answer’s voice player to save it as an MP3. Voices are saved with your
+          chats, so earlier answers can be played again after a reload or on another device.
         </p>
       </div>
     </>

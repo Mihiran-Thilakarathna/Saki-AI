@@ -74,8 +74,11 @@ function PrivacyPolicy() {
           </li>
           <li>
             <strong>Voice recordings:</strong> when you ask by voice, the recording is sent for transcription and answering
-            and is <strong>not stored</strong> by Saki. Saki’s spoken answers are generated on demand and are not stored
-            either.
+            and is <strong>not stored</strong> by Saki.
+          </li>
+          <li>
+            <strong>Saki’s spoken answers:</strong> the audio of Saki’s answers is saved with your chat so you can play
+            or download it again later, and is deleted together with the chat.
           </li>
           <li>
             <strong>Files you import:</strong> a code file you open is placed in your editor and saved with that chat, like

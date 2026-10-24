@@ -71,6 +71,8 @@ export interface ConversationMessage {
   fileName: string | null;
   explanationMarkdown: string | null;
   createdAt: string;
+  /** Saki's voice for this answer is saved and can be played again. */
+  hasAudio: boolean;
 }
 
 export interface CodePayload {
