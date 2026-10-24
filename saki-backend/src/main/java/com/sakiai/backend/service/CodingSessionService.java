@@ -89,6 +89,14 @@ public class CodingSessionService {
         sessionRepository.delete(requireOwned(userId, sessionId));
     }
 
+    /** Deletes every chat (and its messages) the user owns; returns how many were removed. */
+    @Transactional
+    public int deleteAll(UUID userId) {
+        List<CodingSession> sessions = sessionRepository.findByUser_IdOrderByUpdatedAtDesc(userId);
+        sessionRepository.deleteAll(sessions);
+        return sessions.size();
+    }
+
     @Transactional(readOnly = true)
     public List<ConversationMessageDto> messages(UUID userId, UUID sessionId) {
         requireOwned(userId, sessionId);

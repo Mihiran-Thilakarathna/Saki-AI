@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -122,5 +123,19 @@ class SakiApiFlowIntegrationTest {
                         .content("{\"sessionId\":\"%s\",\"query\":\"\"}".formatted(sessionId)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors.query").exists());
+
+        // Clearing history removes every chat of this user only.
+        mvc.perform(post("/api/v1/sessions").header("Authorization", bearer)
+                        .contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isCreated());
+        mvc.perform(delete("/api/v1/sessions").header("Authorization", bearer))
+                .andExpect(status().isNoContent());
+        mvc.perform(get("/api/v1/sessions").header("Authorization", bearer))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+        mvc.perform(get("/api/v1/sessions/{id}", sessionId).header("Authorization", bearer))
+                .andExpect(status().isNotFound());
+        mvc.perform(delete("/api/v1/sessions"))
+                .andExpect(status().isUnauthorized());
     }
 }

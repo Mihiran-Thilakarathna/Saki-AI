@@ -58,6 +58,13 @@ public class SessionController {
         return sessionService.update(principal.id(), sessionId, request);
     }
 
+    /** Clears the user's whole chat history. */
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAll(@AuthenticationPrincipal SakiUserPrincipal principal) {
+        sessionService.deleteAll(principal.id());
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{sessionId}")
     public ResponseEntity<Void> delete(@AuthenticationPrincipal SakiUserPrincipal principal,
                                        @PathVariable UUID sessionId) {
