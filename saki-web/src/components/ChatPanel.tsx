@@ -26,6 +26,8 @@ export function ChatPanel({ onShowEditor }: { onShowEditor: () => void }) {
   const thinkingMode = useWorkspaceStore((s) => s.thinkingMode);
   const remoteActivity = useWorkspaceStore((s) => s.remoteActivity);
   const sendTextQuery = useWorkspaceStore((s) => s.sendTextQuery);
+  // Example questions only for a new account (no chats yet); afterwards the home screen stays clean.
+  const newAccount = useWorkspaceStore((s) => s.sessionsLoaded && s.sessions.length === 0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const lastMessage = messages[messages.length - 1];
 
@@ -74,24 +76,28 @@ export function ChatPanel({ onShowEditor }: { onShowEditor: () => void }) {
                 ))}
               </div>
 
-              <p className="mt-8 w-full text-left text-xs font-semibold tracking-wide text-ink-400 uppercase">
-                Try asking
-              </p>
-              <div className="mt-2 w-full space-y-2">
-                {SUGGESTIONS.map(({ icon: Icon, text, sinhala }) => (
-                  <button
-                    key={text}
-                    type="button"
-                    onClick={() => void sendTextQuery(text)}
-                    className={`group flex w-full items-center gap-3 rounded-xl border border-ink-700 bg-ink-850 px-4 py-3 text-left text-sm text-ink-200 transition hover:border-saki-500/60 hover:bg-ink-800 hover:text-ink-100 ${
-                      sinhala ? 'sinhala' : ''
-                    }`}
-                  >
-                    <Icon className="h-4 w-4 shrink-0 text-ink-400 transition group-hover:text-saki-400" />
-                    {text}
-                  </button>
-                ))}
-              </div>
+              {newAccount && (
+                <>
+                  <p className="mt-8 w-full text-left text-xs font-semibold tracking-wide text-ink-400 uppercase">
+                    Try asking
+                  </p>
+                  <div className="mt-2 w-full space-y-2">
+                    {SUGGESTIONS.map(({ icon: Icon, text, sinhala }) => (
+                      <button
+                        key={text}
+                        type="button"
+                        onClick={() => void sendTextQuery(text)}
+                        className={`group flex w-full items-center gap-3 rounded-xl border border-ink-700 bg-ink-850 px-4 py-3 text-left text-sm text-ink-200 transition hover:border-saki-500/60 hover:bg-ink-800 hover:text-ink-100 ${
+                          sinhala ? 'sinhala' : ''
+                        }`}
+                      >
+                        <Icon className="h-4 w-4 shrink-0 text-ink-400 transition group-hover:text-saki-400" />
+                        {text}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           )}
 

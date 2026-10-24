@@ -43,6 +43,8 @@ export interface RemoteActivity {
 interface WorkspaceState {
   sessions: SessionSummary[];
   sessionsLoading: boolean;
+  /** The chat list has been fetched at least once (so "no chats" really means a new account). */
+  sessionsLoaded: boolean;
   activeSessionId: string | null;
   sessionLoading: boolean;
   messages: ChatMessage[];
@@ -90,6 +92,7 @@ interface WorkspaceState {
 const initialState = {
   sessions: [],
   sessionsLoading: false,
+  sessionsLoaded: false,
   activeSessionId: null,
   sessionLoading: false,
   messages: [],
@@ -306,7 +309,7 @@ export const useWorkspaceStore = create<WorkspaceState>()((set, get) => {
     set({ sessionsLoading: true });
     try {
       const sessions = await sessionApi.list();
-      set({ sessions });
+      set({ sessions, sessionsLoaded: true });
       // Like other chat apps, Saki opens on a new chat (the home screen); earlier chats are in
       // the sidebar. The chat is only created on the server when the first question is sent.
       const { activeSessionId } = get();
