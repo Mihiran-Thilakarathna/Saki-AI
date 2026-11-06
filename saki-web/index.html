@@ -26,9 +26,11 @@
     />
     <title>Saki AI</title>
     <script>
-      // Apply the saved theme and chat colors before first paint (dark Classic by default).
+      // Apply the theme (saved choice, else the device's light / dark setting) and chat colors before first paint.
       try {
-        document.documentElement.dataset.theme = localStorage.getItem('saki-theme') === 'light' ? 'light' : 'dark';
+        var saved = localStorage.getItem('saki-theme');
+        var light = saved === 'light' || (saved !== 'dark' && matchMedia('(prefers-color-scheme: light)').matches);
+        document.documentElement.dataset.theme = light ? 'light' : 'dark';
         var palette = localStorage.getItem('saki-palette');
         if (/^(ocean|forest|sunset|lavender)$/.test(palette || '')) document.documentElement.dataset.palette = palette;
       } catch (e) {

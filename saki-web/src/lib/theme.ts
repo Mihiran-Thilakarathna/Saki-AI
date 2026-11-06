@@ -2,6 +2,8 @@ import { flushSync } from 'react-dom';
 import { create } from 'zustand';
 
 export type Theme = 'dark' | 'light';
+/** What the user chose: a fixed theme, or follow the device's light / dark setting. */
+export type ThemePreference = Theme | 'system';
 
 /**
  * Chat color themes; each one is a set of CSS variables in index.css. `swatch` repeats the
@@ -55,9 +57,26 @@ export type Palette = (typeof PALETTES)[number]['id'];
 const THEME_KEY = 'saki-theme';
 const PALETTE_KEY = 'saki-palette';
 
+const darkQuery = () => window.matchMedia?.('(prefers-color-scheme: dark)');
+
+/** The device's own light / dark setting (dark when unknown). */
+function systemTheme(): Theme {
+  const query = darkQuery();
+  return !query || query.matches ? 'dark' : 'light';
+}
+
 /** The theme index.html already applied before React loaded (avoids a flash). */
 function initialTheme(): Theme {
   return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+}
+
+function initialPreference(): ThemePreference {
+  try {
+    const saved = localStorage.getItem(THEME_KEY);
+    return saved === 'light' || saved === 'dark' ? saved : 'system';
+  } catch {
+    return 'system';
+  }
 }
 
 function initialPalette(): Palette {
@@ -117,32 +136,50 @@ function withReveal(change: () => void, origin?: RevealOrigin) {
 }
 
 interface ThemeState {
+  /** The theme on screen. */
   theme: Theme;
+  /** The user's choice; 'system' follows the device. */
+  preference: ThemePreference;
   palette: Palette;
+  /** Switches to the other theme (and stops following the device). */
   toggle: (origin?: RevealOrigin) => void;
-  setTheme: (theme: Theme, origin?: RevealOrigin) => void;
+  setPreference: (preference: ThemePreference, origin?: RevealOrigin) => void;
   setPalette: (palette: Palette) => void;
 }
 
-export const useThemeStore = create<ThemeState>()((set, get) => ({
-  theme: initialTheme(),
-  palette: initialPalette(),
-  toggle: (origin) => get().setTheme(get().theme === 'dark' ? 'light' : 'dark', origin),
-  setTheme: (theme, origin) => {
+export const useThemeStore = create<ThemeState>()((set, get) => {
+  /** Puts `theme` on screen (with the circular reveal when it changes). */
+  const showTheme = (theme: Theme, origin?: RevealOrigin) => {
     if (theme === get().theme) return;
     withReveal(() => {
       document.documentElement.dataset.theme = theme;
-      save(THEME_KEY, theme);
       syncThemeColor();
       // Render the new theme (icons, editor) before the browser captures the "after" view.
       flushSync(() => set({ theme }));
     }, origin);
-  },
-  setPalette: (palette) => {
-    if (palette === 'classic') delete document.documentElement.dataset.palette;
-    else document.documentElement.dataset.palette = palette;
-    save(PALETTE_KEY, palette);
-    syncThemeColor();
-    set({ palette });
-  },
-}));
+  };
+
+  // Follow the device when it switches between light and dark (e.g. at sunset).
+  darkQuery()?.addEventListener('change', () => {
+    if (get().preference === 'system') showTheme(systemTheme());
+  });
+
+  return {
+    theme: initialTheme(),
+    preference: initialPreference(),
+    palette: initialPalette(),
+    toggle: (origin) => get().setPreference(get().theme === 'dark' ? 'light' : 'dark', origin),
+    setPreference: (preference, origin) => {
+      save(THEME_KEY, preference);
+      set({ preference });
+      showTheme(preference === 'system' ? systemTheme() : preference, origin);
+    },
+    setPalette: (palette) => {
+      if (palette === 'classic') delete document.documentElement.dataset.palette;
+      else document.documentElement.dataset.palette = palette;
+      save(PALETTE_KEY, palette);
+      syncThemeColor();
+      set({ palette });
+    },
+  };
+});

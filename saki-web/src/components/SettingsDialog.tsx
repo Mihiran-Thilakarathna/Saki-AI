@@ -8,6 +8,7 @@ import {
   Loader2,
   LogOut,
   MessagesSquare,
+  Monitor,
   Moon,
   Palette as PaletteIcon,
   Search,
@@ -187,35 +188,36 @@ function ProfileSection({ onClose }: { onClose: () => void }) {
 /* --------------------------------------------------------------- Appearance */
 
 function AppearanceSection() {
-  const theme = useThemeStore((s) => s.theme);
-  const setTheme = useThemeStore((s) => s.setTheme);
+  const preference = useThemeStore((s) => s.preference);
+  const setPreference = useThemeStore((s) => s.setPreference);
   const palette = useThemeStore((s) => s.palette);
   const setPalette = useThemeStore((s) => s.setPalette);
 
   return (
     <>
-      <SectionTitle title="Mode" description="Light or dark background." />
-      <div className="grid grid-cols-2 gap-3">
+      <SectionTitle title="Mode" description="Match your device, or always use light or dark." />
+      <div className="grid grid-cols-3 gap-3">
         {(
           [
-            ['dark', 'Dark', Moon],
+            ['system', 'System', Monitor],
             ['light', 'Light', Sun],
+            ['dark', 'Dark', Moon],
           ] as const
         ).map(([id, label, Icon]) => (
           <button
             key={id}
             type="button"
-            onClick={(e) => setTheme(id, centerOf(e.currentTarget))}
-            aria-pressed={theme === id}
+            onClick={(e) => setPreference(id, centerOf(e.currentTarget))}
+            aria-pressed={preference === id}
             className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition ${
-              theme === id
+              preference === id
                 ? 'border-saki-500 bg-saki-500/10 text-ink-100 ring-2 ring-saki-500/25'
                 : 'border-ink-700 text-ink-300 hover:border-ink-600 hover:text-ink-100'
             }`}
           >
             <Icon className="h-4 w-4" />
             {label}
-            {theme === id && <Check className="ml-auto h-4 w-4 text-saki-400" />}
+            {preference === id && <Check className="ml-auto h-4 w-4 text-saki-400" />}
           </button>
         ))}
       </div>
