@@ -456,6 +456,14 @@
   -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
   mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
 }
+/* Faint dot pattern behind the sign-in form, fading out toward the edges. */
+.auth-dots {
+  background-image: radial-gradient(color-mix(in oklab, var(--ink-400) 35%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 45%, #000 20%, transparent 80%);
+  mask-image: radial-gradient(ellipse 60% 55% at 50% 45%, #000 20%, transparent 80%);
+  opacity: 0.5;
+}
 .saki-bot {
   filter: drop-shadow(0 18px 34px rgba(30, 50, 110, 0.25));
 }

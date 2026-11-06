@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, FileCode2, Loader2, Mic, ShieldCheck } from 'lucide-react';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
 import { SakiGreeting } from '@/components/SakiGreeting';
 import { SakiLogo } from '@/components/SakiLogo';
@@ -10,6 +10,13 @@ import { useAuthStore } from '@/store/authStore';
 type Mode = 'login' | 'register';
 
 const DEFAULT_LANGUAGE = 'si-LK' as const;
+
+/** Short highlights under the form. */
+const HIGHLIGHTS = [
+  { icon: Mic, text: 'Ask by voice' },
+  { icon: FileCode2, text: 'Code in your editor' },
+  { icon: ShieldCheck, text: 'Private and secure' },
+];
 
 /** Sign in / create account: Saki's robot on the left (large screens), the form on the right. */
 export function AuthScreen() {
@@ -71,12 +78,12 @@ export function AuthScreen() {
             </span>
             Saki is online
           </span>
-          <h2 className="mt-5 text-[2.6rem] leading-[1.12] font-semibold tracking-tight">
-            Code by voice,
-            <br />
-            in <span className="text-brand">Sinhala</span> and English.
+          <h2 className="mt-5 max-w-xl text-[2.5rem] leading-[1.12] font-semibold tracking-tight">
+            Your AI coding assistant, fluent in <span className="text-brand">Sinhala</span> and English.
           </h2>
-          <p className="mt-3 text-base text-ink-300">Ask out loud. Hear the answer. Get the code.</p>
+          <p className="mt-3 max-w-lg text-base text-ink-300">
+            Ask a question by voice or text, hear a clear explanation, and get complete code in your editor.
+          </p>
         </div>
 
         {/* Saki stands on the bottom edge of the panel, so the cut-off waist stays hidden. */}
@@ -99,9 +106,10 @@ export function AuthScreen() {
       </section>
 
       {/* Form side */}
-      <section className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-5 py-12">
-        {/* Soft brand glow behind the logo (small screens). */}
-        <div className="bg-brand-mesh pointer-events-none absolute top-[-12%] left-1/2 h-[46%] w-[min(760px,120%)] -translate-x-1/2 opacity-25 blur-3xl lg:hidden dark:opacity-30" />
+      <section className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-5 pt-12 pb-20">
+        {/* Soft brand glow and a faint dot pattern, so the form side does not feel empty. */}
+        <div className="bg-brand-mesh pointer-events-none absolute top-[-12%] left-1/2 h-[46%] w-[min(760px,120%)] -translate-x-1/2 opacity-25 blur-3xl lg:top-[-22%] lg:left-[65%] lg:w-[90%] lg:opacity-[0.16] dark:opacity-30 lg:dark:opacity-20" />
+        <div className="auth-dots pointer-events-none absolute inset-0" />
         <ThemeToggle className="icon-btn absolute top-4 right-4" />
 
         <div className="relative w-full max-w-[380px] animate-fade-in">
@@ -117,7 +125,7 @@ export function AuthScreen() {
             </p>
           </div>
 
-          <div className="card mt-8 p-6 shadow-xl shadow-black/5 sm:p-7 dark:shadow-black/30">
+          <div className="card mt-8 p-6 shadow-2xl shadow-black/5 sm:p-7 dark:shadow-black/40">
             <GoogleSignInButton mode={mode} preferredLanguage={DEFAULT_LANGUAGE} onError={setError} />
 
             <form className="space-y-4" onSubmit={onSubmit} noValidate>
@@ -188,9 +196,22 @@ export function AuthScreen() {
               {registering ? 'Sign in' : 'Create an account'}
             </button>
           </p>
+
+          <ul className="mt-10 grid grid-cols-3 gap-2 border-t border-ink-700 pt-6">
+            {HIGHLIGHTS.map(({ icon: Icon, text }) => (
+              <li key={text} className="flex flex-col items-center gap-2 text-center text-xs text-ink-400">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-ink-700 bg-ink-850 text-saki-400">
+                  <Icon className="h-4 w-4" />
+                </span>
+                {text}
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <footer className="relative mt-10 flex gap-4 text-xs text-ink-400">
+        <footer className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-4 px-6 py-5 text-xs text-ink-400">
+          <span>© {new Date().getFullYear()} Saki AI</span>
+          <span className="h-3 w-px bg-ink-700" aria-hidden="true" />
           <a href="/terms" className="hover:text-ink-200">Terms</a>
           <a href="/privacy" className="hover:text-ink-200">Privacy</a>
         </footer>
