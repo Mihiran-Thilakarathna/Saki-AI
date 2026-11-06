@@ -22,29 +22,17 @@ into your editor.
 </div>
 
 > [!NOTE]
-> The live demo runs on free hosting, so the first request after a quiet period can take about a minute.
+> **Live demo availability:** the demo is hosted on free-tier infrastructure. After a period of inactivity the server
+> goes to sleep, so the first request may take up to a minute while it starts up.
 
-## Table of contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Tech stack](#tech-stack)
-- [Architecture](#architecture)
-- [Getting started](#getting-started)
-- [Configuration](#configuration)
-- [Project structure](#project-structure)
-- [Deployment](#deployment)
-- [Security](#security)
-- [Author](#author)
-
-## Overview
+## 📖 Overview
 
 Most AI coding tools expect questions in English. Saki lets Sri Lankan developers ask in **Sinhala, English or
 Singlish** (for example, *"Spring Boot වල JWT auth හදන්නේ කොහොමද?"*) and get a clear spoken explanation together with
 complete code. It is made up of a Spring Boot backend, a React web IDE and a Flutter mobile app that can act as a
 wireless microphone for the web IDE.
 
-## Features
+## ✨ Features
 
 | | |
 | --- | --- |
@@ -57,7 +45,7 @@ wireless microphone for the web IDE.
 | **Chat history** | Search, export (Markdown or JSON) or clear your chats from Settings. |
 | **Accounts** | Sign in with email and password or with Google. |
 
-## Tech stack
+## 🧱 Tech stack
 
 | Layer | Technologies |
 | --- | --- |
@@ -68,7 +56,7 @@ wireless microphone for the web IDE.
 | Database | PostgreSQL 16 |
 | Hosting | Vercel (web IDE), Render (backend, Docker), Neon (PostgreSQL) |
 
-## Architecture
+## 🏗️ Architecture
 
 ```mermaid
 flowchart LR
@@ -85,14 +73,14 @@ flowchart LR
    with the chat.
 4. Every device signed in to the same account and chat updates in real time.
 
-## Getting started
+## 🚀 Getting started
 
-### Prerequisites
+### 📋 Prerequisites
 
 - [Docker](https://www.docker.com/) with Docker Compose
 - A free [Gemini API key](https://aistudio.google.com/apikey)
 
-### Run with Docker
+### 🐳 Run with Docker
 
 ```bash
 git clone https://github.com/Mihiran-Thilakarathna/Saki-AI.git
@@ -100,7 +88,7 @@ cd Saki-AI
 cp .env.example .env
 ```
 
-Set `GEMINI_API_KEY`, `POSTGRES_PASSWORD` and `JWT_SECRET` in `.env` (see [Configuration](#configuration)), then start
+Set `GEMINI_API_KEY`, `POSTGRES_PASSWORD` and `JWT_SECRET` in `.env` (see Configuration below), then start
 everything:
 
 ```bash
@@ -146,7 +134,7 @@ cd saki-web && npm run typecheck && npm run lint
 
 </details>
 
-## Configuration
+## ⚙️ Configuration
 
 All settings are environment variables; [`.env.example`](.env.example) lists every option with comments.
 
@@ -163,7 +151,7 @@ All settings are environment variables; [`.env.example`](.env.example) lists eve
 add your site address (for example `http://localhost:8081`) to **Authorized JavaScript origins**, and put the client ID
 in `GOOGLE_CLIENT_ID`. Publish the app under **Google Auth Platform → Audience** so that any Google account can sign in.
 
-## Project structure
+## 📁 Project structure
 
 ```text
 Saki-AI/
@@ -183,7 +171,7 @@ Saki-AI/
 └── render.yaml          Render deployment blueprint
 ```
 
-## Deployment
+## ☁️ Deployment
 
 The live version runs entirely on free plans.
 
@@ -196,7 +184,7 @@ The live version runs entirely on free plans.
 After deploying, set the backend's `CORS_ALLOWED_ORIGINS` to the web IDE's URL and add that URL to the Google client's
 **Authorized JavaScript origins**.
 
-## Security
+## 🔒 Security
 
 - Passwords are hashed with BCrypt, and every chat, message and voice is accessible only to its owner.
 - Rate limits protect sign-in and the AI from abuse, and oversized requests are rejected.
@@ -206,7 +194,7 @@ After deploying, set the backend's `CORS_ALLOWED_ORIGINS` to the web IDE's URL a
 See the [Privacy Policy](https://saki-ai-blue.vercel.app/privacy) and
 [Terms of Service](https://saki-ai-blue.vercel.app/terms).
 
-## Author
+## 👤 Author
 
 **Mihiran Thilakarathna**: Information Technology undergraduate at Rajarata University of Sri Lanka, building
 full-stack and AI/ML applications.
