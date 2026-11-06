@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Code2, LogOut, Menu, MessageSquare, Moon, PanelRightClose, PanelRightOpen, Settings, Sun, WifiOff } from 'lucide-react';
 import { SakiLogo } from '@/components/SakiLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { useThemeStore } from '@/lib/theme';
+import { centerOf, useThemeStore } from '@/lib/theme';
 import type { MobileView } from '@/components/Workspace';
 import type { ConnectionStatus } from '@/hooks/useStompSession';
 import { useAuthStore } from '@/store/authStore';
@@ -156,7 +156,7 @@ function UserMenu({ onOpenSettings }: { onOpenSettings: () => void }) {
           <button
             type="button"
             role="menuitem"
-            onClick={toggleTheme}
+            onClick={(e) => toggleTheme(centerOf(e.currentTarget))}
             className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-200 hover:bg-ink-800 hover:text-ink-100"
           >
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}

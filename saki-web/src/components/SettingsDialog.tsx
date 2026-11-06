@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { exportChats, type ExportFormat } from '@/lib/chatExport';
 import { errorMessage } from '@/lib/apiClient';
-import { PALETTES, useThemeStore } from '@/lib/theme';
+import { centerOf, PALETTES, useThemeStore } from '@/lib/theme';
 import { PLAYBACK_RATES, useAudioStore } from '@/store/audioStore';
 import { useAuthStore } from '@/store/authStore';
 import { toast } from '@/store/toastStore';
@@ -205,7 +205,7 @@ function AppearanceSection() {
           <button
             key={id}
             type="button"
-            onClick={() => setTheme(id)}
+            onClick={(e) => setTheme(id, centerOf(e.currentTarget))}
             aria-pressed={theme === id}
             className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition ${
               theme === id

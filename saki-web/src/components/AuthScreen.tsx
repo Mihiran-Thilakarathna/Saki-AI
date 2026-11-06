@@ -78,11 +78,15 @@ export function AuthScreen() {
             </span>
             Saki is online
           </span>
-          <h2 className="mt-5 max-w-xl text-[2.5rem] leading-[1.12] font-semibold tracking-tight">
-            Your AI coding assistant, fluent in <span className="text-brand">Sinhala</span> and English.
+          <h2 className="mt-5 text-[2rem] leading-[1.15] font-semibold tracking-tight xl:text-[2.5rem]">
+            Your AI coding assistant,
+            <br />
+            fluent in <span className="text-brand">Sinhala</span> and English.
           </h2>
-          <p className="mt-3 max-w-lg text-base text-ink-300">
-            Ask a question by voice or text, hear a clear explanation, and get complete code in your editor.
+          <p className="mt-3 text-base leading-relaxed text-ink-300">
+            Ask a question by voice or text,
+            <br />
+            hear a clear explanation, and get complete code in your editor.
           </p>
         </div>
 

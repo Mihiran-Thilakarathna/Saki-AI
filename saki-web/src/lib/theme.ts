@@ -1,3 +1,4 @@
+import { flushSync } from 'react-dom';
 import { create } from 'zustand';
 
 export type Theme = 'dark' | 'light';
@@ -78,23 +79,64 @@ function syncThemeColor() {
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color);
 }
 
+/** Where a theme switch was clicked; the new theme spreads out from here. */
+export interface RevealOrigin {
+  x: number;
+  y: number;
+}
+
+/** The center of a clicked element, as the starting point of the theme reveal. */
+export function centerOf(element: Element): RevealOrigin {
+  const rect = element.getBoundingClientRect();
+  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+}
+
+const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+
+/**
+ * Runs a theme change as a circular reveal from `origin` (View Transitions API); browsers
+ * without it, or with reduced motion on, switch instantly.
+ */
+function withReveal(change: () => void, origin?: RevealOrigin) {
+  if (!document.startViewTransition || reducedMotion()) {
+    change();
+    return;
+  }
+  const x = origin?.x ?? window.innerWidth / 2;
+  const y = origin?.y ?? window.innerHeight / 2;
+  const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+  const transition = document.startViewTransition(change);
+  transition.ready
+    .then(() =>
+      document.documentElement.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+        { duration: 650, easing: 'cubic-bezier(0.45, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' },
+      ),
+    )
+    .catch(() => undefined);
+}
+
 interface ThemeState {
   theme: Theme;
   palette: Palette;
-  toggle: () => void;
-  setTheme: (theme: Theme) => void;
+  toggle: (origin?: RevealOrigin) => void;
+  setTheme: (theme: Theme, origin?: RevealOrigin) => void;
   setPalette: (palette: Palette) => void;
 }
 
 export const useThemeStore = create<ThemeState>()((set, get) => ({
   theme: initialTheme(),
   palette: initialPalette(),
-  toggle: () => get().setTheme(get().theme === 'dark' ? 'light' : 'dark'),
-  setTheme: (theme) => {
-    document.documentElement.dataset.theme = theme;
-    save(THEME_KEY, theme);
-    syncThemeColor();
-    set({ theme });
+  toggle: (origin) => get().setTheme(get().theme === 'dark' ? 'light' : 'dark', origin),
+  setTheme: (theme, origin) => {
+    if (theme === get().theme) return;
+    withReveal(() => {
+      document.documentElement.dataset.theme = theme;
+      save(THEME_KEY, theme);
+      syncThemeColor();
+      // Render the new theme (icons, editor) before the browser captures the "after" view.
+      flushSync(() => set({ theme }));
+    }, origin);
   },
   setPalette: (palette) => {
     if (palette === 'classic') delete document.documentElement.dataset.palette;

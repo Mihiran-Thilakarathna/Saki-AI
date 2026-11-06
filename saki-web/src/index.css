@@ -8,7 +8,7 @@
  * switched by <html data-theme="light|dark"> and the chat theme <html data-palette="...">.
  */
 @theme inline {
-  --font-sans: 'Inter', 'Noto Sans Sinhala', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Geist', 'Noto Sans Sinhala', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
 
   --color-ink-950: var(--ink-950);
@@ -280,7 +280,7 @@
   }
   :lang(si),
   .sinhala {
-    font-family: 'Noto Sans Sinhala', 'Inter', sans-serif;
+    font-family: 'Noto Sans Sinhala', 'Geist', sans-serif;
     line-height: 1.7;
   }
   ::selection {
@@ -456,6 +456,25 @@
   -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
   mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
 }
+/* Light / dark switch: the new theme is revealed in a growing circle (see lib/theme.ts). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
+
+/* Privacy / Terms text. */
+.legal-body strong {
+  font-weight: 600;
+  color: var(--ink-100);
+}
+.legal-body li::marker {
+  color: var(--saki-400);
+}
+
 /* Faint dot pattern behind the sign-in form, fading out toward the edges. */
 .auth-dots {
   background-image: radial-gradient(color-mix(in oklab, var(--ink-400) 35%, transparent) 1px, transparent 1px);
