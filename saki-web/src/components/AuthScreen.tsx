@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
-import { Eye, EyeOff, FileCode2, Languages, Loader2, Mic, Smartphone } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
 import { SakiLogo } from '@/components/SakiLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -10,13 +10,7 @@ type Mode = 'login' | 'register';
 
 const DEFAULT_LANGUAGE = 'si-LK' as const;
 
-const FEATURES = [
-  { icon: Mic, title: 'Ask out loud', text: 'Talk to Saki in Sinhala or English. It answers aloud.' },
-  { icon: FileCode2, title: 'Code in your editor', text: 'Complete, working code lands straight in the editor.' },
-  { icon: Languages, title: 'Built for Sri Lankan developers', text: 'Understands Sinhala mixed with technical English.' },
-  { icon: Smartphone, title: 'Use your phone as a mic', text: 'Pair the mobile app and talk from across the room.' },
-];
-
+/** Sign in / create account: a single centered card with the logo, Google and email sign-in. */
 export function AuthScreen() {
   const login = useAuthStore((s) => s.login);
   const register = useAuthStore((s) => s.register);
@@ -57,72 +51,31 @@ export function AuthScreen() {
   const registering = mode === 'register';
 
   return (
-    <main className="flex min-h-full">
-      {/* Brand panel */}
-      <section className="relative hidden w-[46%] max-w-[640px] flex-col justify-between overflow-hidden bg-ink-800 p-12 text-ink-100 lg:flex dark:bg-ink-900 dark:text-white">
-                <div className="bg-brand-mesh pointer-events-none absolute inset-x-0 -bottom-24 h-[70%] opacity-35 blur-3xl dark:opacity-45" />
+    <main className="relative flex min-h-full flex-col items-center justify-center overflow-hidden px-5 py-12">
+      {/* Soft brand glow behind the logo. */}
+      <div className="bg-brand-mesh pointer-events-none absolute top-[-12%] left-1/2 h-[46%] w-[min(760px,120%)] -translate-x-1/2 opacity-25 blur-3xl dark:opacity-30" />
+      <ThemeToggle className="icon-btn absolute top-4 right-4" />
 
-        <div className="relative flex items-center gap-3">
-          <SakiLogo size={40} />
-          <span className="text-xl font-semibold tracking-tight">Saki AI</span>
-        </div>
-
-        <div className="relative">
-          <h1 className="text-4xl leading-tight font-semibold tracking-tight">
-            Your voice coding
-            <br />
-            assistant, in <span className="text-brand">Sinhala</span> and English.
+      <div className="relative w-full max-w-[380px] animate-fade-in">
+        <div className="flex flex-col items-center text-center">
+          <SakiLogo size={68} />
+          <h1 className="mt-4 text-2xl font-semibold tracking-tight">
+            {registering ? 'Create your account' : 'Welcome to Saki'}
           </h1>
-          <p className="mt-4 max-w-md text-base text-ink-300 dark:text-white/70">
-            Ask a question, hear a clear answer, and get complete code in your editor.
-          </p>
-          <ul className="mt-10 space-y-5">
-            {FEATURES.map(({ icon: Icon, title, text }) => (
-              <li key={title} className="flex gap-4">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ink-850 text-saki-400 shadow-sm dark:bg-white/10 dark:text-saki-400 dark:shadow-none">
-                  <Icon className="h-5 w-5" />
-                </span>
-                <span>
-                  <span className="block text-sm font-semibold">{title}</span>
-                  <span className="block text-sm text-ink-400 dark:text-white/60">{text}</span>
-                </span>
-              </li>
-            ))}
-          </ul>
+          <p className="mt-1.5 text-sm text-ink-400">Your voice coding companion, in Sinhala and English.</p>
         </div>
 
-        <p className="relative text-xs text-ink-400 dark:text-white/40">
-          Saki is AI and can make mistakes. Please double-check responses. ·{' '}
-          <a href="/privacy" className="underline hover:text-ink-200 dark:hover:text-white/70">Privacy</a> ·{' '}
-          <a href="/terms" className="underline hover:text-ink-200 dark:hover:text-white/70">Terms</a>
-        </p>
-      </section>
-
-      {/* Form */}
-      <section className="relative flex flex-1 items-center justify-center px-5 py-12 sm:px-8">
-        <ThemeToggle className="icon-btn absolute top-4 right-4" />
-        <div className="w-full max-w-[400px]">
-          <div className="mb-8 flex items-center gap-2.5 lg:hidden">
-            <SakiLogo size={34} />
-            <span className="text-lg font-semibold tracking-tight">Saki AI</span>
-          </div>
-
-          <h2 className="text-2xl font-semibold tracking-tight">{registering ? 'Create your account' : 'Welcome back'}</h2>
-          <p className="mt-1.5 text-sm text-ink-400">
-            {registering ? 'Start coding with Saki in under a minute.' : 'Sign in to continue to Saki.'}
-          </p>
-
+        <div className="card mt-8 p-6 shadow-xl shadow-black/5 sm:p-7 dark:shadow-black/30">
           <GoogleSignInButton mode={mode} preferredLanguage={DEFAULT_LANGUAGE} onError={setError} />
 
-          <form className="mt-6 space-y-4" onSubmit={onSubmit} noValidate>
+          <form className="space-y-4" onSubmit={onSubmit} noValidate>
             {registering && (
-              <Field label="Full name" error={fieldErrors.fullName}>
+              <Field label="Name" error={fieldErrors.fullName}>
                 <input
                   className="field"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   autoComplete="name"
-                  placeholder="Nimal Perera"
                   required
                 />
               </Field>
@@ -138,11 +91,7 @@ export function AuthScreen() {
                 required
               />
             </Field>
-            <Field
-              label="Password"
-              error={fieldErrors.password}
-              hint={registering ? 'At least 8 characters.' : undefined}
-            >
+            <Field label="Password" error={fieldErrors.password} hint={registering ? 'At least 8 characters' : undefined}>
               <div className="relative">
                 <input
                   className="field pr-11"
@@ -170,29 +119,29 @@ export function AuthScreen() {
               </p>
             )}
 
-            <button type="submit" className="btn-primary w-full py-3" disabled={submitting}>
+            <button type="submit" className="btn-primary w-full py-2.5" disabled={submitting}>
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {registering ? 'Create account' : 'Sign in'}
             </button>
           </form>
-
-          <p className="mt-6 text-center text-sm text-ink-400">
-            {registering ? 'Already have an account?' : 'New to Saki?'}{' '}
-            <button
-              type="button"
-              onClick={() => switchMode(registering ? 'login' : 'register')}
-              className="font-semibold text-saki-400 hover:text-saki-500"
-            >
-              {registering ? 'Sign in' : 'Create an account'}
-            </button>
-          </p>
-          <p className="mt-4 text-center text-xs text-ink-400">
-            By continuing, you agree to Saki’s{' '}
-            <a href="/terms" className="underline hover:text-ink-200">Terms of Service</a> and{' '}
-            <a href="/privacy" className="underline hover:text-ink-200">Privacy Policy</a>.
-          </p>
         </div>
-      </section>
+
+        <p className="mt-6 text-center text-sm text-ink-400">
+          {registering ? 'Already have an account?' : 'New to Saki?'}{' '}
+          <button
+            type="button"
+            onClick={() => switchMode(registering ? 'login' : 'register')}
+            className="font-semibold text-saki-400 hover:text-saki-500"
+          >
+            {registering ? 'Sign in' : 'Create an account'}
+          </button>
+        </p>
+      </div>
+
+      <footer className="relative mt-10 flex gap-4 text-xs text-ink-400">
+        <a href="/terms" className="hover:text-ink-200">Terms</a>
+        <a href="/privacy" className="hover:text-ink-200">Privacy</a>
+      </footer>
     </main>
   );
 }

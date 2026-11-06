@@ -100,7 +100,7 @@ export function GoogleSignInButton({ mode, preferredLanguage, onError }: Props) 
   if (!clientId) return null;
 
   return (
-    <div className="mt-6">
+    <div className="mb-5">
       <div className="group relative" style={{ height: BUTTON_HEIGHT }}>
         <div
           aria-hidden="true"
@@ -117,9 +117,9 @@ export function GoogleSignInButton({ mode, preferredLanguage, onError }: Props) 
           }`}
         />
       </div>
-      <div className="mt-6 flex items-center gap-3 text-xs text-ink-400">
+      <div className="mt-5 flex items-center gap-3 text-xs text-ink-400">
         <span className="h-px flex-1 bg-ink-700" />
-        or continue with email
+        or
         <span className="h-px flex-1 bg-ink-700" />
       </div>
     </div>
