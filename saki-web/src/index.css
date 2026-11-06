@@ -1,6 +1,9 @@
 @import 'tailwindcss';
 
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+/* Screen-height breakpoints, so the sign-in page fits without scrolling on short screens. */
+@custom-variant short (@media (max-height: 820px));
+@custom-variant tiny (@media (max-height: 680px));
 
 /*
  * Saki theme. Utilities use the ink-* (surfaces and text), saki-* (main accent) and
@@ -473,6 +476,14 @@
 }
 .legal-body li::marker {
   color: var(--saki-400);
+}
+
+/* Short screens: slightly slimmer inputs on the sign-in form. */
+@media (max-height: 680px) {
+  .auth-form .field {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
 }
 
 /* Faint dot pattern behind the sign-in form, fading out toward the edges. */

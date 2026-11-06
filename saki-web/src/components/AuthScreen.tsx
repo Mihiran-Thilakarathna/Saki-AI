@@ -61,7 +61,7 @@ export function AuthScreen() {
   const [botLoaded, setBotLoaded] = useState(false);
 
   return (
-    <main className="flex min-h-full">
+    <main className="flex h-full min-h-[560px]">
       {/* Brand side: Saki and what it does. Follows the light / dark theme. */}
       <section className="auth-brand relative hidden w-[54%] flex-col overflow-hidden text-ink-100 lg:flex">
         <div className="bg-brand-mesh pointer-events-none absolute inset-x-[-10%] bottom-[-25%] h-[70%] opacity-30 blur-3xl" />
@@ -133,18 +133,18 @@ export function AuthScreen() {
       </section>
 
       {/* Form side */}
-      <section className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-5 pt-12 pb-20">
+      <section className="relative flex flex-1 flex-col items-center overflow-x-hidden overflow-y-auto px-5 pt-14 pb-4 tiny:pt-12">
         {/* Soft brand glow and a faint dot pattern, so the form side does not feel empty. */}
         <div className="bg-brand-mesh pointer-events-none absolute top-[-12%] left-1/2 h-[46%] w-[min(760px,120%)] -translate-x-1/2 opacity-25 blur-3xl lg:top-[-22%] lg:left-[65%] lg:w-[90%] lg:opacity-[0.16] dark:opacity-30 lg:dark:opacity-20" />
         <div className="auth-dots pointer-events-none absolute inset-0" />
-        <ThemeToggle className="icon-btn absolute top-4 right-4" />
+        <ThemeToggle className="absolute top-4 right-4 z-10" />
 
-        <div className="relative w-full max-w-[380px] animate-fade-in">
+        <div className="relative my-auto w-full max-w-[380px] animate-fade-in">
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
-            <div className="lg:hidden">
-              <SakiLogo size={68} />
+            <div className="lg:hidden tiny:hidden">
+              <SakiLogo size={56} />
             </div>
-            <h1 className="mt-4 text-2xl font-semibold tracking-tight lg:mt-0 lg:text-3xl">
+            <h1 className="mt-3 text-2xl font-semibold tracking-tight lg:mt-0 lg:text-3xl tiny:mt-0 short:lg:text-[1.75rem]">
               {registering ? 'Create your account' : 'Welcome back'}
             </h1>
             <p className="mt-1.5 text-sm text-ink-400">
@@ -152,10 +152,10 @@ export function AuthScreen() {
             </p>
           </div>
 
-          <div className="card mt-8 p-6 shadow-2xl shadow-black/5 sm:p-7 dark:shadow-black/40">
+          <div className="card mt-7 p-6 shadow-2xl shadow-black/5 sm:p-7 dark:shadow-black/40 short:mt-5 short:sm:p-6 tiny:p-5 tiny:sm:p-5">
             <GoogleSignInButton mode={mode} preferredLanguage={DEFAULT_LANGUAGE} onError={setError} />
 
-            <form className="space-y-4" onSubmit={onSubmit} noValidate>
+            <form className="auth-form space-y-4 tiny:space-y-3" onSubmit={onSubmit} noValidate>
               {registering && (
                 <Field label="Name" error={fieldErrors.fullName}>
                   <input
@@ -213,7 +213,7 @@ export function AuthScreen() {
             </form>
           </div>
 
-          <p className="mt-6 text-center text-sm text-ink-400">
+          <p className="mt-6 text-center text-sm text-ink-400 short:mt-4">
             {registering ? 'Already have an account?' : 'New to Saki?'}{' '}
             <button
               type="button"
@@ -224,7 +224,7 @@ export function AuthScreen() {
             </button>
           </p>
 
-          <ul className="mt-10 grid grid-cols-3 gap-2 border-t border-ink-700 pt-6">
+          <ul className="mt-10 grid grid-cols-3 gap-2 border-t border-ink-700 pt-6 short:hidden">
             {HIGHLIGHTS.map(({ icon: Icon, text }) => (
               <li key={text} className="flex flex-col items-center gap-2 text-center text-xs text-ink-400">
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-ink-700 bg-ink-850 text-saki-400">
@@ -236,7 +236,7 @@ export function AuthScreen() {
           </ul>
         </div>
 
-        <footer className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-4 px-6 py-5 text-xs text-ink-400">
+        <footer className="relative mt-6 flex shrink-0 items-center justify-center gap-4 pt-2 text-xs text-ink-400 tiny:mt-4">
           <span>© {new Date().getFullYear()} Saki AI</span>
           <span className="h-3 w-px bg-ink-700" aria-hidden="true" />
           <a href="/terms" className="hover:text-ink-200">Terms</a>
@@ -250,7 +250,7 @@ export function AuthScreen() {
 function Field({ label, error, hint, children }: { label: string; error?: string; hint?: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-sm font-medium text-ink-200">{label}</span>
+      <span className="mb-1.5 block text-sm font-medium text-ink-200 tiny:mb-1">{label}</span>
       {children}
       {error ? (
         <span className="mt-1 block text-xs text-rose-500">{error}</span>

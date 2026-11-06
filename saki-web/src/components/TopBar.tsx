@@ -85,7 +85,7 @@ export function TopBar({
         >
           {editorOpen ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
         </button>
-        <ThemeToggle className="icon-btn hidden sm:inline-flex" />
+        <ThemeToggle className="mx-1 hidden sm:inline-flex" />
         <button type="button" className="icon-btn" onClick={onOpenSettings} aria-label="Settings" title="Settings">
           <Settings className="h-4 w-4" />
         </button>
