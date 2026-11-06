@@ -1,6 +1,7 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
+import { SakiGreeting } from '@/components/SakiGreeting';
 import { SakiLogo } from '@/components/SakiLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { ApiError, errorMessage } from '@/lib/apiClient';
@@ -52,62 +53,43 @@ export function AuthScreen() {
 
   return (
     <main className="flex min-h-full">
-      {/* Brand side: always dark, so Saki and the glow read well in both themes. */}
-      <section className="relative hidden w-[54%] flex-col overflow-hidden bg-[#050816] text-white lg:flex">
+      {/* Brand side: Saki and what it does. Follows the light / dark theme. */}
+      <section className="auth-brand relative hidden w-[54%] flex-col overflow-hidden text-ink-100 lg:flex">
         <div className="bg-brand-mesh pointer-events-none absolute inset-x-[-10%] bottom-[-25%] h-[70%] opacity-30 blur-3xl" />
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(255,255,255,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.6) 1px, transparent 1px)',
-            backgroundSize: '44px 44px',
-            maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)',
-          }}
-        />
+        <div className="auth-grid pointer-events-none absolute inset-0" />
 
         <div className="relative flex items-center gap-2.5 p-8">
           <SakiLogo size={34} />
           <span className="text-lg font-semibold tracking-tight">Saki AI</span>
         </div>
 
-        <div className="relative z-10 px-12 pt-6">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/70 backdrop-blur">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#34e27a]" />
-            Saki is online
+        <div className="relative z-10 px-12 pt-4">
+          <span className="inline-flex items-center gap-2 rounded-full border border-ink-700 bg-ink-850/70 px-3 py-1 text-xs font-medium text-ink-300 backdrop-blur">
+            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
+            AI voice coding assistant
           </span>
-          <h2 className="mt-5 text-[2.6rem] leading-[1.15] font-semibold tracking-tight">
-            Code by voice,
-            <br />
-            in <span className="text-brand">Sinhala</span> and English.
+          <h2 className="mt-5 max-w-xl text-[2.5rem] leading-[1.15] font-semibold tracking-tight">
+            Ask your coding questions in <span className="sinhala text-brand">සිංහල</span> or English.
           </h2>
-          <p className="mt-3 text-base text-white/60">Ask out loud. Hear the answer. Get the code.</p>
+          <p className="mt-3 max-w-lg text-base text-ink-300">
+            Saki explains the answer out loud and writes the complete code into your editor.
+          </p>
         </div>
 
-        {/* Saki, standing at the bottom of the panel. */}
-        <div className="relative mt-8 min-h-0 flex-1">
-          <div className="pointer-events-none absolute bottom-[8%] left-1/2 h-[80%] w-[80%] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,200,245,0.26),rgba(106,76,255,0.14)_45%,transparent_70%)] blur-2xl" />
+        {/* Saki stands on the bottom edge of the panel, so the cut-off waist stays hidden. */}
+        <div className="relative mt-6 min-h-0 flex-1">
+          <div className="pointer-events-none absolute bottom-0 left-1/2 h-[85%] w-[80%] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,200,245,0.24),rgba(106,76,255,0.12)_45%,transparent_70%)] blur-2xl" />
           <div className="absolute inset-x-0 bottom-0 flex h-full justify-center">
-            <div className="relative h-full max-h-[600px] min-h-[320px] self-end" style={{ aspectRatio: '806 / 1000' }}>
+            <div className="relative h-full max-h-[580px] min-h-[300px] self-end" style={{ aspectRatio: '806 / 1000' }}>
               <img
                 src="/saki-bot.webp"
                 alt="Saki, the Saki AI robot"
                 width={806}
                 height={1000}
                 draggable={false}
-                className="saki-bot-float h-full w-full select-none object-contain object-bottom"
+                className="saki-bot h-full w-full select-none object-contain object-bottom"
               />
-              <span className="saki-bot-chip absolute top-[27%] left-[78%] inline-flex items-center gap-2 rounded-2xl rounded-bl-sm border border-white/10 bg-[#0c1126]/85 px-3.5 py-2 text-sm font-medium whitespace-nowrap text-white/90 shadow-xl backdrop-blur">
-                <span className="flex h-3.5 items-end gap-[2px]" aria-hidden="true">
-                  {[0, 1, 2, 3].map((i) => (
-                    <span
-                      key={i}
-                      className="h-3.5 w-[3px] origin-bottom animate-bar rounded-full bg-[#22c8f5]"
-                      style={{ animationDelay: `${i * 0.15}s` }}
-                    />
-                  ))}
-                </span>
-                Hi, I’m Saki!
-              </span>
+              <SakiGreeting className="absolute top-[20%] left-[74%]" />
             </div>
           </div>
         </div>
