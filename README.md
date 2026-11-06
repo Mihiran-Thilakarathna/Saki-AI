@@ -4,7 +4,7 @@
 
 # Saki AI
 
-### Your bilingual voice coding companion
+### Your AI coding assistant, fluent in Sinhala and English
 
 Ask in **සිංහල, English or Singlish**. Saki explains the answer **out loud** and writes the **complete code** into your editor.
 
@@ -22,25 +22,17 @@ Ask in **සිංහල, English or Singlish**. Saki explains the answer **out 
 > [!NOTE]
 > The live demo runs on free hosting, so the first request after a quiet period can take about a minute.
 
-<img src="docs/screenshots/answer-dark.webp" alt="Saki answering a Sinhala question with code in the editor" width="100%" />
-
-<table>
-  <tr>
-    <td width="33%"><img src="docs/screenshots/home-dark.webp" alt="Home screen" /></td>
-    <td width="33%"><img src="docs/screenshots/settings-themes.webp" alt="Settings and chat themes" /></td>
-    <td width="33%"><img src="docs/screenshots/home-light.webp" alt="Light mode" /></td>
-  </tr>
-</table>
-
 ## ✨ Features
 
 - 🎙️ **Voice or text** in Sinhala, English or Singlish: click the mic, press **Alt+S**, or say **"Hey Saki"**.
-- 🔊 **Spoken answers** with a natural voice; change the speed, download them as MP3, and replay them any time.
+- 🔊 **Spoken answers** in a natural voice: change the speed, download them as MP3, and replay them later, even after a
+  reload or on another device.
 - 💻 **Complete code in a Monaco editor** (the VS Code editor); Saki reads your code with every question.
+- ⌨️ **Answers type themselves out**, followed by the key points, the voice and the code file.
 - 📱 **Phone as a wireless mic**: the Flutter app pairs with the Web IDE and stays in sync in real time.
-- 🎨 **Light and dark modes** and five chat themes.
+- 🎨 **Light, dark or match your device**, with a smooth switch between them, and five chat themes.
 - ⚙️ **Settings** for your profile, voice and chat history (search, export, clear).
-- 🔐 **Sign in** with email or Google.
+- 🔐 **Sign in** with email or Google; every visit starts on a fresh chat.
 
 ## 🧱 Tech stack
 
@@ -49,11 +41,11 @@ Ask in **සිංහල, English or Singlish**. Saki explains the answer **out 
 | [`saki-backend`](saki-backend) | Java 21, Spring Boot 3.5, Spring Security + JWT, PostgreSQL + Flyway, STOMP WebSocket |
 | [`saki-web`](saki-web) | React 19, TypeScript, Vite, Tailwind CSS 4, Monaco Editor, Zustand |
 | [`saki-mobile`](saki-mobile) | Flutter, Riverpod, `record`, `just_audio`, `stomp_dart_client` |
-| AI | Google **Gemini** for understanding speech and answering, **Gemini TTS** for the voice |
+| AI | Google **Gemini** for understanding speech and answering, **Gemini TTS** for the voice (with a backup voice model) |
 
 **How it works:** the question (voice or text) and the code in the editor go to the backend. Gemini understands the
 question and returns a spoken answer, key points and a complete code file. The answer appears at once, the voice follows
-a few seconds later, and every device on the same account updates in real time.
+a few seconds later and is saved with the chat, and every device on the same account updates in real time.
 
 ## 🚀 Run it locally
 
