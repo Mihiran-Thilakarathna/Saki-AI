@@ -8,6 +8,16 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Start loading the sign-in robot right away on large screens (keep in step with src/lib/sakiBot.ts). -->
+    <link
+      rel="preload"
+      as="image"
+      type="image/webp"
+      imagesrcset="/saki-bot-700.webp 610w, /saki-bot.webp 871w"
+      imagesizes="(min-width: 1440px) 590px, 480px"
+      media="(min-width: 1024px)"
+      fetchpriority="high"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

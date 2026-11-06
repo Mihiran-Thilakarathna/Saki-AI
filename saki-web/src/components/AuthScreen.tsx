@@ -5,6 +5,7 @@ import { SakiGreeting } from '@/components/SakiGreeting';
 import { SakiLogo } from '@/components/SakiLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { ApiError, errorMessage } from '@/lib/apiClient';
+import { SAKI_BOT_PREVIEW, SAKI_BOT_SIZES, SAKI_BOT_SRCSET } from '@/lib/sakiBot';
 import { useAuthStore } from '@/store/authStore';
 
 type Mode = 'login' | 'register';
@@ -57,6 +58,7 @@ export function AuthScreen() {
   };
 
   const registering = mode === 'register';
+  const [botLoaded, setBotLoaded] = useState(false);
 
   return (
     <main className="flex min-h-full">
@@ -95,13 +97,34 @@ export function AuthScreen() {
           <div className="pointer-events-none absolute bottom-0 left-1/2 h-[85%] w-[80%] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,200,245,0.24),rgba(106,76,255,0.12)_45%,transparent_70%)] blur-2xl" />
           <div className="absolute inset-x-0 bottom-0 flex h-full justify-center">
             <div className="relative h-full max-h-[680px] min-h-[320px] self-end" style={{ aspectRatio: '871 / 1000' }}>
+              {/* A blurred preview shows instantly; the robot fades in over it once loaded. */}
+              <div
+                aria-hidden="true"
+                className={`absolute inset-0 bg-contain bg-bottom bg-no-repeat blur-xl transition-opacity duration-500 ${
+                  botLoaded ? 'opacity-0' : 'opacity-70'
+                }`}
+                style={{ backgroundImage: `url(${SAKI_BOT_PREVIEW})` }}
+              />
               <img
-                src="/saki-bot.webp"
+                src="/saki-bot-700.webp"
+                srcSet={SAKI_BOT_SRCSET}
+                sizes={SAKI_BOT_SIZES}
                 alt="Saki, the Saki AI robot"
                 width={871}
                 height={1000}
                 draggable={false}
-                className="saki-bot h-full w-full select-none object-contain object-bottom"
+                fetchPriority="high"
+                // Lazy: phones hide this panel, so they never download the robot (large screens get it
+                // early from the preload in index.html).
+                loading="lazy"
+                decoding="async"
+                ref={(img) => {
+                  if (img?.complete && img.naturalWidth > 0) setBotLoaded(true);
+                }}
+                onLoad={() => setBotLoaded(true)}
+                className={`saki-bot relative h-full w-full select-none object-contain object-bottom transition-opacity duration-500 ${
+                  botLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
               />
               <SakiGreeting className="absolute top-[17%] left-[72%]" />
             </div>
