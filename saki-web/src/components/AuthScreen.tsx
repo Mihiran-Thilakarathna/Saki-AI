@@ -63,33 +63,36 @@ export function AuthScreen() {
           <span className="text-lg font-semibold tracking-tight">Saki AI</span>
         </div>
 
-        <div className="relative z-10 px-12 pt-4">
+        <div className="relative z-10 px-12 pt-2">
           <span className="inline-flex items-center gap-2 rounded-full border border-ink-700 bg-ink-850/70 px-3 py-1 text-xs font-medium text-ink-300 backdrop-blur">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-            AI voice coding assistant
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            </span>
+            Saki is online
           </span>
-          <h2 className="mt-5 max-w-xl text-[2.5rem] leading-[1.15] font-semibold tracking-tight">
-            Ask your coding questions in <span className="sinhala text-brand">සිංහල</span> or English.
+          <h2 className="mt-5 text-[2.6rem] leading-[1.12] font-semibold tracking-tight">
+            Code by voice,
+            <br />
+            in <span className="text-brand">Sinhala</span> and English.
           </h2>
-          <p className="mt-3 max-w-lg text-base text-ink-300">
-            Saki explains the answer out loud and writes the complete code into your editor.
-          </p>
+          <p className="mt-3 text-base text-ink-300">Ask out loud. Hear the answer. Get the code.</p>
         </div>
 
         {/* Saki stands on the bottom edge of the panel, so the cut-off waist stays hidden. */}
-        <div className="relative mt-6 min-h-0 flex-1">
+        <div className="relative mt-4 min-h-0 flex-1">
           <div className="pointer-events-none absolute bottom-0 left-1/2 h-[85%] w-[80%] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,200,245,0.24),rgba(106,76,255,0.12)_45%,transparent_70%)] blur-2xl" />
           <div className="absolute inset-x-0 bottom-0 flex h-full justify-center">
-            <div className="relative h-full max-h-[580px] min-h-[300px] self-end" style={{ aspectRatio: '806 / 1000' }}>
+            <div className="relative h-full max-h-[680px] min-h-[320px] self-end" style={{ aspectRatio: '871 / 1000' }}>
               <img
                 src="/saki-bot.webp"
                 alt="Saki, the Saki AI robot"
-                width={806}
+                width={871}
                 height={1000}
                 draggable={false}
                 className="saki-bot h-full w-full select-none object-contain object-bottom"
               />
-              <SakiGreeting className="absolute top-[20%] left-[74%]" />
+              <SakiGreeting className="absolute top-[17%] left-[72%]" />
             </div>
           </div>
         </div>

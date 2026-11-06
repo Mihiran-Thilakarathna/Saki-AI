@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 
-const LINES = ['Hi, I’m Saki! 👋', 'ආයුබෝවන්! 🙏', 'Ask me about your code.', 'සිංහලෙන් අහන්නත් පුළුවන්.'];
+const LINES = ['Hi, I’m Saki! 👋', 'Ask me anything.', 'I’ll write the code.'];
 
 const TYPE_MS = 55;
 const ERASE_MS = 28;
 const HOLD_MS = 1900;
 const NEXT_MS = 350;
 
-/** Splits into user-visible characters, so Sinhala letters and emoji never break apart. */
+/** Splits into user-visible characters, so emoji never break apart. */
 function characters(text: string): string[] {
   if ('Segmenter' in Intl) {
     return Array.from(new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(text), (s) => s.segment);
