@@ -439,6 +439,31 @@
   }
 }
 
+/* Sign-in page robot: floats gently (its waist fades into the panel) while its greeting bobs. */
+.saki-bot-float {
+  animation: saki-bot-float 5s ease-in-out infinite;
+  filter: drop-shadow(0 20px 40px rgba(0, 8, 32, 0.6));
+  -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 99%);
+  mask-image: linear-gradient(to bottom, #000 78%, transparent 99%);
+}
+.saki-bot-chip {
+  animation: saki-bot-chip 5s ease-in-out infinite;
+}
+@keyframes saki-bot-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes saki-bot-chip {
+  0%, 100% { transform: translateY(-4px); }
+  50% { transform: translateY(-16px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .saki-bot-float,
+  .saki-bot-chip {
+    animation: none;
+  }
+}
+
 /* Saki's logo glows in the brand colors while it speaks. */
 .saki-logo-speaking {
   animation: saki-speak 1.6s ease-in-out infinite;
